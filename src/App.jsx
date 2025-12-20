@@ -30,7 +30,7 @@ function App() {
             }
 
             // Fetch the rates.json which is updated by the background scraper
-            const response = await fetch('/src/data/rates.json?t=' + Date.now());
+            const response = await fetch('/api/rates?t=' + Date.now());
             if (!response.ok) throw new Error('無法讀取匯率資料庫');
             const newData = await response.json();
 

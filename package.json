@@ -8,10 +8,13 @@
         "scrape": "node scripts/scraper.js",
         "build": "vite build",
         "lint": "eslint .",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "start": "node server.js",
+        "postinstall": "npx playwright install chromium --with-deps"
     },
     "dependencies": {
         "axios": "^1.13.2",
+        "express": "^5.2.1",
         "lucide-react": "^0.344.0",
         "playwright": "^1.57.0",
         "react": "^18.3.1",
