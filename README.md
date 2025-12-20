@@ -1,6 +1,6 @@
 # SR-BOT Pro Exchange (換匯分析) 🚀
 
-![Dashboard View](/Users/lawrence/.gemini/antigravity/brain/c8441c54-5ff3-45d2-a3c9-2cc72d78275a/dashboard_top_view_1766198138122.png)
+![Dashboard View](./docs/images/dashboard.png)
 
 這是一個專為 iPhone 17 Pro 螢幕優化的泰銖換匯分析工具。它能即時抓取 **台灣銀行 (BOT)** 與 **SuperRich Thailand** 的匯率，並自動計算「台幣直換」與「美金中轉」哪種方式最划算。
 
