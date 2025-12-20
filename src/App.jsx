@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Landmark, RefreshCw, Loader2, Info, Globe } from 'lucide-react';
-import ratesData from './data/rates.json';
 
 function App() {
     const [twdAmount, setTwdAmount] = useState(50000);
-    // Use verified rates as initial state if JSON is not reachable or empty
-    const [rateTwd, setRateTwd] = useState(ratesData?.srTwd || 0.995);
-    const [rateUsdSell, setRateUsdSell] = useState(ratesData?.botUsd || 31.8);
-    const [rateUsdBuy, setRateUsdBuy] = useState(ratesData?.srUsd || 31.36);
-    const [lastUpdated, setLastUpdated] = useState(ratesData?.lastUpdated || '2025/12/20 16:20');
+    // Use verified rates as initial state
+    const [rateTwd, setRateTwd] = useState(0.995);
+    const [rateUsdSell, setRateUsdSell] = useState(31.8);
+    const [rateUsdBuy, setRateUsdBuy] = useState(31.36);
+    const [lastUpdated, setLastUpdated] = useState('2025/12/20 16:40');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 

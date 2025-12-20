@@ -6,11 +6,11 @@
     "scripts": {
         "dev": "vite",
         "scrape": "node scripts/scraper.js",
-        "build": "vite build",
+        "build": "mkdir -p src/data && echo '{}' > src/data/rates.json && vite build",
         "lint": "eslint .",
         "preview": "vite preview",
         "start": "node server.js",
-        "postinstall": "npx playwright install chromium --with-deps"
+        "postinstall": "npx playwright install chromium"
     },
     "dependencies": {
         "axios": "^1.13.2",
