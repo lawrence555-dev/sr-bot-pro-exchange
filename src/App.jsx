@@ -112,7 +112,11 @@ function App() {
                         <input
                             type="number"
                             value={twdAmount}
-                            onChange={(e) => setTwdAmount(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '') setTwdAmount('');
+                                else setTwdAmount(parseFloat(val));
+                            }}
                             className="text-5xl font-black bg-transparent border-none focus:outline-none text-white w-full pr-2"
                         />
                         <span className="text-emerald-500 font-black text-2xl">TWD</span>
@@ -173,7 +177,11 @@ function App() {
                             type="number"
                             value={rateUsdSell}
                             step="0.001"
-                            onChange={(e) => setRateUsdSell(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '') setRateUsdSell('');
+                                else setRateUsdSell(parseFloat(val));
+                            }}
                             className="text-2xl font-bold bg-transparent border-none text-white focus:outline-none"
                         />
                     </div>
@@ -187,7 +195,11 @@ function App() {
                             type="number"
                             value={rateTwd}
                             step="0.001"
-                            onChange={(e) => setRateTwd(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '') setRateTwd('');
+                                else setRateTwd(parseFloat(val));
+                            }}
                             className="text-2xl font-bold bg-transparent border-none text-white focus:outline-none"
                         />
                     </div>
@@ -201,7 +213,11 @@ function App() {
                             type="number"
                             value={rateUsdBuy}
                             step="0.01"
-                            onChange={(e) => setRateUsdBuy(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '') setRateUsdBuy('');
+                                else setRateUsdBuy(parseFloat(val));
+                            }}
                             className="text-2xl font-bold bg-transparent border-none text-white focus:outline-none"
                         />
                     </div>
