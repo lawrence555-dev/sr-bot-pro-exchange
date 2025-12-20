@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --app-bg: #0B101B;
+    --card-bg: #161C2C;
+    --text-main: #FFFFFF;
+    --text-dim: #94A3B8;
+    --accent-green: #10B981;
+    --accent-blue: #3B82F6;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    @apply bg-[#0B101B] text-white m-0 p-0;
+}
+
+.data-card {
+    @apply bg-[#161C2C] border border-white/5 rounded-[20px] p-4 transition-all duration-200;
+}
+
+.result-card {
+    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+    @apply border border-white/10 rounded-[24px] p-6 relative overflow-hidden;
+}
+
+.label-text {
+    @apply text-[#94A3B8] text-[10px] font-bold uppercase tracking-[0.05em] mb-1 block;
+}
+
+input {
+    @apply bg-transparent border-none outline-none w-full font-extrabold text-white;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.btn-sync {
+    @apply flex items-center justify-center p-2.5 rounded-xl bg-slate-800 border border-slate-700 active:scale-95 transition-all;
+}
+
+.badge {
+    @apply px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider;
+}
