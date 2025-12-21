@@ -117,6 +117,9 @@ function App() {
                                 if (val === '') setTwdAmount('');
                                 else setTwdAmount(parseFloat(val));
                             }}
+                            onBlur={(e) => {
+                                if (e.target.value === '') setTwdAmount(50000);
+                            }}
                             className="text-5xl font-black bg-transparent border-none focus:outline-none text-white w-full pr-2"
                         />
                         <span className="text-emerald-500 font-black text-2xl">TWD</span>

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { exec } from 'child_process'
+import fs from 'fs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,7 +11,8 @@ export default defineConfig({
             name: 'run-scraper',
             configureServer(server) {
                 server.middlewares.use((req, res, next) => {
-                    if (req.url === '/api/scrape') {
+                    const url = req.url || '';
+                    if (url.startsWith('/api/scrape')) {
                         console.log('UI triggered scrape request received...');
                         exec('node scripts/scraper.js', (error, stdout, stderr) => {
                             if (error) {
@@ -23,6 +25,21 @@ export default defineConfig({
                             res.setHeader('Content-Type', 'application/json');
                             res.end(JSON.stringify({ success: true }));
                         });
+                    } else if (url.startsWith('/api/rates')) {
+                        try {
+                            const ratesPath = './src/data/rates.json';
+                            if (import.meta.url && fs.existsSync(ratesPath)) {
+                                const data = fs.readFileSync(ratesPath, 'utf-8');
+                                res.setHeader('Content-Type', 'application/json');
+                                res.end(data);
+                            } else {
+                                res.statusCode = 404;
+                                res.end(JSON.stringify({ error: 'Rates not found' }));
+                            }
+                        } catch (err) {
+                            res.statusCode = 500;
+                            res.end(JSON.stringify({ error: err.message }));
+                        }
                     } else {
                         next();
                     }
