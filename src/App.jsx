@@ -25,7 +25,10 @@ function App() {
             if (forceScrape) {
                 // Trigger the actual scraping process (takes ~15s)
                 const scrapeRes = await fetch('/api/scrape');
-                if (!scrapeRes.ok) throw new Error('即時抓取服務異常');
+                if (!scrapeRes.ok) {
+                    const errData = await scrapeRes.json().catch(() => ({}));
+                    throw new Error(errData.stderr || errData.details || '即時抓取服務異常');
+                }
             }
 
             // Fetch the rates.json which is updated by the background scraper
@@ -41,7 +44,7 @@ function App() {
             }
         } catch (err) {
             console.error('Fetch error:', err);
-            setError(forceScrape ? '開啟即時抓取失敗，請確認開發環境支援' : '自動更新失敗，顯示為快照或預設匯率數據');
+            setError(forceScrape ? `同步失敗: ${err.message}` : '自動更新失敗，顯示為快照或預設匯率數據');
         } finally {
             // If it was a force scrape, we want a small extra delay for the file system to catch up
             setTimeout(() => setLoading(false), forceScrape ? 1000 : 500);

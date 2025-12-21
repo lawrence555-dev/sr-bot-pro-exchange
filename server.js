@@ -13,12 +13,23 @@ const PORT = process.env.PORT || 3000;
 // 1. API endpoint to trigger scraping
 app.get('/api/scrape', (req, res) => {
     console.log('Production: Scrape request received');
-    exec('node scripts/scraper.js', (error, stdout, stderr) => {
+    console.log('CWD:', process.cwd());
+    const scriptPath = path.join(__dirname, 'scripts/scraper.js');
+    console.log('Script Path:', scriptPath);
+
+    exec(`node "${scriptPath}"`, { maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
         if (error) {
-            console.error(`Scrape error: ${error}`);
-            return res.status(500).json({ error: error.message });
+            console.error(`Scrape execution error: ${error.message}`);
+            console.error(`Stderr: ${stderr}`);
+            // Return detailed error to UI for debugging
+            return res.status(500).json({
+                error: 'Scrape failed',
+                details: error.message,
+                stderr: stderr
+            });
         }
         console.log('Scrape completed successfully');
+        console.log('Stdout:', stdout);
         res.json({ success: true });
     });
 });
