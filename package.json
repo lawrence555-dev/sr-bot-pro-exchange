@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "vite",
         "scrape": "node scripts/scraper.js",
-        "build": "mkdir -p src/data && echo '{}' > src/data/rates.json && vite build",
+        "build": "npx playwright install chromium && mkdir -p src/data && echo '{}' > src/data/rates.json && vite build",
         "lint": "eslint .",
         "preview": "vite preview",
         "start": "node server.js",
