@@ -36,12 +36,23 @@ function App() {
                 fetch('/api/history?t=' + Date.now())
             ]);
 
+            let validData = false;
             if (ratesRes.ok) {
                 const newData = await ratesRes.json();
-                setRateUsdSell(newData.botUsd);
-                setRateTwd(newData.srTwd);
-                setRateUsdBuy(newData.srUsd);
-                setLastUpdated(newData.lastUpdated);
+                // Validate that we have actual numbers
+                if (typeof newData.botUsd === 'number' && typeof newData.srTwd === 'number' && typeof newData.srUsd === 'number') {
+                    setRateUsdSell(newData.botUsd);
+                    setRateTwd(newData.srTwd);
+                    setRateUsdBuy(newData.srUsd);
+                    setLastUpdated(newData.lastUpdated);
+                    validData = true;
+                }
+            }
+
+            // If data is invalid and it's our first try, auto-trigger a scrape
+            if (!validData && !forceScrape) {
+                console.log('Detected invalid/missing data on startup, triggering auto-sync...');
+                return await updateRates(true);
             }
 
             if (historyRes.ok) {
@@ -52,7 +63,9 @@ function App() {
             console.error('Fetch error:', err);
             setError(forceScrape ? `同步失敗: ${err.message}` : '自動更新失敗，顯示為快照或預設匯率數據');
         } finally {
-            setTimeout(() => setLoading(false), forceScrape ? 1000 : 500);
+            if (!loading) { // Avoid overlapping state updates from recursion
+                setTimeout(() => setLoading(false), forceScrape ? 1000 : 500);
+            }
         }
     };
 
@@ -61,9 +74,15 @@ function App() {
     }, []);
 
     useEffect(() => {
-        const totalA = Math.floor(twdAmount * rateTwd);
-        const usdInBot = Math.floor(twdAmount / rateUsdSell);
-        const totalB = Math.floor(usdInBot * rateUsdBuy);
+        // Safe calculations with fallback to prevent NaN
+        const amt = Number(twdAmount) || 0;
+        const rTwd = Number(rateTwd) || 0;
+        const rUsdSell = Number(rateUsdSell) || 31.8;
+        const rUsdBuy = Number(rateUsdBuy) || 31.36;
+
+        const totalA = Math.floor(amt * rTwd);
+        const usdInBot = rUsdSell > 0 ? Math.floor(amt / rUsdSell) : 0;
+        const totalB = Math.floor(usdInBot * rUsdBuy);
         const diff = Math.abs(totalA - totalB);
         const isAWinner = totalA >= totalB;
 
@@ -152,18 +171,18 @@ function App() {
                                 <div className="py-4 border-y border-white/5 space-y-1">
                                     <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">預估換得總額 (THB)</p>
                                     <p className="text-5xl font-black text-white italic tracking-tighter">
-                                        ฿ {(results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
+                                        ฿ {loading && results.totalA === 0 ? '...' : (results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
                                     </p>
                                 </div>
 
                                 <div className="mt-6 grid grid-cols-2 gap-4">
                                     <div className={`p-5 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30 ring-2 ring-emerald-500/20' : 'bg-white/5 border-white/5'}`}>
                                         <p className="text-[10px] font-black text-slate-500 uppercase mb-2">台幣直換</p>
-                                        <p className={`text-xl font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
+                                        <p className={`text-xl font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {loading && results.totalA === 0 ? '...' : results.totalA.toLocaleString()}</p>
                                     </div>
                                     <div className={`p-5 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' : 'bg-white/5 border-white/5'}`}>
                                         <p className="text-[10px] font-black text-slate-500 uppercase mb-2">美金中轉</p>
-                                        <p className={`text-xl font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
+                                        <p className={`text-xl font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {loading && results.totalB === 0 ? '...' : results.totalB.toLocaleString()}</p>
                                     </div>
                                 </div>
 
