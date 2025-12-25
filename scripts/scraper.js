@@ -93,6 +93,7 @@ async function run() {
         ]);
 
         const timestamp = new Date().toLocaleString('zh-TW', {
+            timeZone: 'Asia/Taipei',
             hour12: false,
             year: 'numeric',
             month: '2-digit',
@@ -121,7 +122,7 @@ async function run() {
                 console.error('History parse failed, resetting...');
             }
         }
-        
+
         // Add new record
         history.push({
             time: timestamp,
@@ -133,7 +134,7 @@ async function run() {
 
         fs.writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
         console.log('Successfully updated history at:', HISTORY_PATH);
-        
+
         console.log(result);
     } catch (error) {
         console.error('Scraping process failed:', error.message);
