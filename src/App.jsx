@@ -74,122 +74,130 @@ function App() {
     const historyUsd = history.map(h => ({ time: h.time, value: h.srUsd }));
 
     return (
-        <div className="w-full max-w-[440px] mx-auto min-h-screen flex flex-col p-6 bg-[#08090C] text-white font-['Outfit'] antialiased">
+        <div className="w-full max-w-[440px] mx-auto bg-[#08090C] text-white font-['Outfit'] antialiased">
             {/* Background Glow */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 blur-[120px] rounded-full"></div>
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full"></div>
             </div>
 
-            {/* Header */}
-            <header className="relative z-10 flex justify-between items-center mb-8 pt-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-transform hover:scale-105 active:scale-95 duration-300">
-                        <Wallet className="text-white w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT 匯率分析</h1>
-                        <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">即時引擎: {lastUpdated}</p>
-                    </div>
-                </div>
-                <button
-                    onClick={() => updateRates(true)}
-                    className={`p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 ${loading ? 'opacity-50 pointer-events-none' : ''}`}
-                >
-                    {loading ? (
-                        <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
-                    ) : (
-                        <RefreshCw className="w-5 h-5 text-emerald-400 hover:rotate-180 transition-transform duration-500" />
-                    )}
-                </button>
-            </header>
-
-            {error && (
-                <div className="relative z-10 mb-6 p-4 glass-morphic border-amber-500/30 rounded-2xl text-amber-400 text-xs font-bold flex items-center gap-3 animate-shake">
-                    <Info className="w-5 h-5 flex-shrink-0" />
-                    {error}
-                </div>
-            )}
-
-            <div className="relative z-10 space-y-6">
-                {/* Budget input with pulse effect */}
-                <div className="glass-morphic p-7 rounded-[2rem] border-emerald-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-emerald-500/40">
-                    <div className="flex items-center gap-2 mb-3">
-                        <DollarSign className="w-4 h-4 text-emerald-400" />
-                        <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
-                    </div>
-                    <div className="flex items-center">
-                        <input
-                            type="number"
-                            value={twdAmount}
-                            onChange={(e) => setTwdAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                            onBlur={() => twdAmount === '' && setTwdAmount(50000)}
-                            className="text-6xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter selection:bg-emerald-500/30"
-                            placeholder="0"
-                        />
-                        <span className="text-emerald-500 font-black text-2xl ml-2">TWD</span>
-                    </div>
-                </div>
-
-                {/* AI Analysis Result */}
-                <div className={`relative overflow-hidden p-7 rounded-[2rem] border transition-all duration-700 shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
-                    <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] rounded-full ${results.isAWinner ? 'bg-emerald-500/20' : 'bg-blue-500/20'}`}></div>
-
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
-                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] opacity-80">AI 換匯策略建議</span>
-                        </div>
-
-                        <h2 className={`text-4xl font-black tracking-tight mb-6 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`}>
-                            {results.isAWinner ? '台幣直換' : '美金中轉'}
-                            <span className="text-white ml-2">最佳選擇</span>
-                        </h2>
-
-                        <div className="py-6 border-y border-white/5 space-y-1">
-                            <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">預估換得總額 (THB)</p>
-                            <p className="text-5xl font-black text-white italic tracking-tighter">
-                                ฿ {(results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
-                            </p>
-                        </div>
-
-                        <div className="mt-8 grid grid-cols-2 gap-4">
-                            <div className={`p-5 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30 ring-2 ring-emerald-500/20' : 'bg-white/5 border-white/5'}`}>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">台幣直換</p>
-                                <p className={`text-xl font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
-                            </div>
-                            <div className={`p-5 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' : 'bg-white/5 border-white/5'}`}>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">美金中轉</p>
-                                <p className={`text-xl font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 p-5 glass-morphic rounded-2xl border-white/5 flex items-start gap-4">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
-                                <TrendingUp className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
-                            </div>
-                            <p className="text-sm text-slate-300 leading-relaxed font-bold">
-                                {results.isAWinner
-                                    ? `目前台幣直換最具優勢！您可以多換得 ฿ ${results.diff.toLocaleString()}。推薦前往 SuperRich 總部兌換。`
-                                    : `美金中轉展現強大優勢！先在台銀換取 $100 美金再到泰國總部，可多領 ฿ ${results.diff.toLocaleString()}。`
-                                }
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Trends Section */}
-                <div className="space-y-4">
+            {/* First Viewport Height Section */}
+            <div className="min-h-[100dvh] flex flex-col p-6 pb-2">
+                {/* Header */}
+                <header className="relative z-10 flex justify-between items-center mb-6 pt-4">
                     <div className="flex items-center gap-4">
-                        <div className="h-px flex-grow bg-white/5"></div>
-                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">市場匯率動態分析</span>
-                        <div className="h-px flex-grow bg-white/5"></div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-transform hover:scale-105 active:scale-95 duration-300">
+                            <Wallet className="text-white w-6 h-6" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT 匯率分析</h1>
+                            <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">即時引擎: {lastUpdated}</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => updateRates(true)}
+                        className={`p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 ${loading ? 'opacity-50 pointer-events-none' : ''}`}
+                    >
+                        {loading ? (
+                            <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
+                        ) : (
+                            <RefreshCw className="w-5 h-5 text-emerald-400 hover:rotate-180 transition-transform duration-500" />
+                        )}
+                    </button>
+                </header>
+
+                {error && (
+                    <div className="relative z-10 mb-6 p-4 glass-morphic border-amber-500/30 rounded-2xl text-amber-400 text-xs font-bold flex items-center gap-3 animate-shake">
+                        <Info className="w-5 h-5 flex-shrink-0" />
+                        {error}
+                    </div>
+                )}
+
+                <div className="relative z-10 flex-grow flex flex-col justify-between">
+                    <div className="space-y-6">
+                        {/* Budget input with pulse effect */}
+                        <div className="glass-morphic p-7 rounded-[2rem] border-emerald-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-emerald-500/40">
+                            <div className="flex items-center gap-2 mb-3">
+                                <DollarSign className="w-4 h-4 text-emerald-400" />
+                                <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
+                            </div>
+                            <div className="flex items-center">
+                                <input
+                                    type="number"
+                                    value={twdAmount}
+                                    onChange={(e) => setTwdAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                                    onBlur={() => twdAmount === '' && setTwdAmount(50000)}
+                                    className="text-6xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter selection:bg-emerald-500/30"
+                                    placeholder="0"
+                                />
+                                <span className="text-emerald-500 font-black text-2xl ml-2">TWD</span>
+                            </div>
+                        </div>
+
+                        {/* AI Analysis Result */}
+                        <div className={`relative overflow-hidden p-7 rounded-[2rem] border transition-all duration-700 shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
+                            <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] rounded-full ${results.isAWinner ? 'bg-emerald-500/20' : 'bg-blue-500/20'}`}></div>
+
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
+                                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] opacity-80">AI 換匯策略建議</span>
+                                </div>
+
+                                <h2 className={`text-4xl font-black tracking-tight mb-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`}>
+                                    {results.isAWinner ? '台幣直換' : '美金中轉'}
+                                    <span className="text-white ml-2 text-xl italic font-light">BEST RATE</span>
+                                </h2>
+
+                                <div className="py-4 border-y border-white/5 space-y-1">
+                                    <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">預估換得總額 (THB)</p>
+                                    <p className="text-5xl font-black text-white italic tracking-tighter">
+                                        ฿ {(results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
+                                    </p>
+                                </div>
+
+                                <div className="mt-6 grid grid-cols-2 gap-4">
+                                    <div className={`p-5 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30 ring-2 ring-emerald-500/20' : 'bg-white/5 border-white/5'}`}>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-2">台幣直換</p>
+                                        <p className={`text-xl font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
+                                    </div>
+                                    <div className={`p-5 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' : 'bg-white/5 border-white/5'}`}>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-2">美金中轉</p>
+                                        <p className={`text-xl font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-6 p-5 glass-morphic rounded-2xl border-white/5 flex items-start gap-4">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
+                                        <TrendingUp className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
+                                    </div>
+                                    <p className="text-sm text-slate-300 leading-relaxed font-bold">
+                                        {results.isAWinner
+                                            ? `目前台幣直換最具優勢！您可以多換得 ฿ ${results.diff.toLocaleString()}。推薦前往 SuperRich 總部兌換。`
+                                            : `美金中轉展現強大優勢！先在台銀換取 $100 美金再到泰國總部，可多領 ฿ ${results.diff.toLocaleString()}。`
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4">
-                        <TrendChart data={historyTwd} color="#10B981" label="SuperRich 台幣基準趨勢" />
-                        <TrendChart data={historyUsd} color="#3B82F6" label="SuperRich 美金基準趨勢" />
+                    {/* Trends Divider - Pushed to the very bottom of the first fold */}
+                    <div className="mt-8 space-y-4">
+                        <div className="flex items-center gap-4">
+                            <div className="h-px flex-grow bg-white/10"></div>
+                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">市場匯率動態分析</span>
+                            <div className="h-px flex-grow bg-white/10"></div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            {/* Scrollable Content (Trends + Links) */}
+            <div className="p-6 pt-0 space-y-6">
+                <div className="grid grid-cols-1 gap-4">
+                    <TrendChart data={historyTwd} color="#10B981" label="SuperRich 台幣基準趨勢" />
+                    <TrendChart data={historyUsd} color="#3B82F6" label="SuperRich 美金基準趨勢" />
                 </div>
 
                 {/* External Links */}
@@ -203,11 +211,11 @@ function App() {
                         <span className="text-xs font-black uppercase tracking-widest text-slate-300">台銀牌告匯率</span>
                     </button>
                 </div>
-            </div>
 
-            <footer className="mt-12 text-center pb-8 opacity-40">
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity 頂級匯率分析系統 • v2.0</p>
-            </footer>
+                <footer className="mt-12 text-center pb-8 opacity-40">
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity 頂級匯率分析系統 • v2.0</p>
+                </footer>
+            </div>
 
             <style>{`
                 .glass-morphic {
