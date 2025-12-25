@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Landmark, RefreshCw, Loader2, Info, Globe } from 'lucide-react';
+import { Zap, Landmark, RefreshCw, Loader2, Info, Globe, TrendingUp, DollarSign, Wallet } from 'lucide-react';
+import TrendChart from './components/TrendChart';
 
 function App() {
     const [twdAmount, setTwdAmount] = useState(50000);
-    // Use verified rates as initial state
     const [rateTwd, setRateTwd] = useState(0.995);
     const [rateUsdSell, setRateUsdSell] = useState(31.8);
     const [rateUsdBuy, setRateUsdBuy] = useState(31.36);
-    const [lastUpdated, setLastUpdated] = useState('2025/12/20 16:40');
+    const [lastUpdated, setLastUpdated] = useState('...');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [history, setHistory] = useState([]);
 
     const [results, setResults] = useState({
         totalA: 0,
@@ -23,7 +24,6 @@ function App() {
         setError(null);
         try {
             if (forceScrape) {
-                // Trigger the actual scraping process (takes ~15s)
                 const scrapeRes = await fetch('/api/scrape');
                 if (!scrapeRes.ok) {
                     const errData = await scrapeRes.json().catch(() => ({}));
@@ -31,27 +31,31 @@ function App() {
                 }
             }
 
-            // Fetch the rates.json which is updated by the background scraper
-            const response = await fetch('/api/rates?t=' + Date.now());
-            if (!response.ok) throw new Error('無法讀取匯率資料庫');
-            const newData = await response.json();
+            const [ratesRes, historyRes] = await Promise.all([
+                fetch('/api/rates?t=' + Date.now()),
+                fetch('/api/history?t=' + Date.now())
+            ]);
 
-            if (newData.botUsd && newData.srTwd && newData.srUsd) {
+            if (ratesRes.ok) {
+                const newData = await ratesRes.json();
                 setRateUsdSell(newData.botUsd);
                 setRateTwd(newData.srTwd);
                 setRateUsdBuy(newData.srUsd);
                 setLastUpdated(newData.lastUpdated);
             }
+
+            if (historyRes.ok) {
+                const historyData = await historyRes.json();
+                setHistory(historyData);
+            }
         } catch (err) {
             console.error('Fetch error:', err);
             setError(forceScrape ? `同步失敗: ${err.message}` : '自動更新失敗，顯示為快照或預設匯率數據');
         } finally {
-            // If it was a force scrape, we want a small extra delay for the file system to catch up
             setTimeout(() => setLoading(false), forceScrape ? 1000 : 500);
         }
     };
 
-    // Auto-fetch on mount
     useEffect(() => {
         updateRates();
     }, []);
@@ -66,169 +70,167 @@ function App() {
         setResults({ totalA, totalB, diff, isAWinner });
     }, [twdAmount, rateTwd, rateUsdSell, rateUsdBuy]);
 
+    const historyTwd = history.map(h => ({ time: h.time, value: h.srTwd }));
+    const historyUsd = history.map(h => ({ time: h.time, value: h.srUsd }));
+
     return (
-        <div className="w-full max-w-[414px] mx-auto min-h-screen flex flex-col p-5 lg:p-6 bg-[#0B0D11]">
+        <div className="w-full max-w-[440px] mx-auto min-h-screen flex flex-col p-6 bg-[#08090C] text-white font-['Outfit'] antialiased">
+            {/* Background Glow */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 blur-[120px] rounded-full"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full"></div>
+            </div>
+
             {/* Header */}
-            <header className="flex justify-between items-center mb-6 pt-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                        <Zap className="text-white w-5 h-5 fill-white" />
+            <header className="relative z-10 flex justify-between items-center mb-8 pt-4">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-transform hover:scale-105 active:scale-95 duration-300">
+                        <Wallet className="text-white w-6 h-6" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-extrabold tracking-tight text-white">換匯分析</h1>
-                        <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest opacity-80">最後更新: {lastUpdated}</p>
+                        <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT ANALYTICS</h1>
+                        <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">Live Engine: {lastUpdated}</p>
                     </div>
                 </div>
-                <div className="flex gap-2">
-                    <button onClick={() => window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank')} className="btn-sync group">
-                        <Globe className="w-4 h-4 text-emerald-400 group-hover:text-emerald-300 transition-colors" />
-                    </button>
-                    <button onClick={() => window.open('https://rate.bot.com.tw/xrt?Lang=zh-TW', '_blank')} className="btn-sync group">
-                        <Landmark className="w-4 h-4 text-blue-400 group-hover:text-blue-300 transition-colors" />
-                    </button>
-                    <button
-                        onClick={() => updateRates(true)}
-                        className={`btn-sync group ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
-                        ) : (
-                            <RefreshCw className="w-4 h-4 text-emerald-400 group-hover:text-emerald-300 transition-colors" />
-                        )}
-                    </button>
-                </div>
+                <button
+                    onClick={() => updateRates(true)}
+                    className={`p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 ${loading ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                    {loading ? (
+                        <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
+                    ) : (
+                        <RefreshCw className="w-5 h-5 text-emerald-400 hover:rotate-180 transition-transform duration-500" />
+                    )}
+                </button>
             </header>
 
             {error && (
-                <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 text-[10px] font-bold flex items-center gap-3">
-                    <Info className="w-4 h-4" />
+                <div className="relative z-10 mb-6 p-4 glass-morphic border-amber-500/30 rounded-2xl text-amber-400 text-xs font-bold flex items-center gap-3 animate-shake">
+                    <Info className="w-5 h-5 flex-shrink-0" />
                     {error}
                 </div>
             )}
 
-            <div className="space-y-5">
-                {/* Budget Card */}
-                <div className="data-card bg-emerald-500/5 border-emerald-500/20 p-6 rounded-3xl">
-                    <label className="label-text text-emerald-500 text-xs mb-2 block">台幣預算 (TWD)</label>
-                    <div className="flex items-baseline">
+            <div className="relative z-10 space-y-6">
+                {/* Budget input with pulse effect */}
+                <div className="glass-morphic p-7 rounded-[2rem] border-emerald-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-emerald-500/40">
+                    <div className="flex items-center gap-2 mb-3">
+                        <DollarSign className="w-4 h-4 text-emerald-400" />
+                        <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">Investment Budget</label>
+                    </div>
+                    <div className="flex items-center">
                         <input
                             type="number"
                             value={twdAmount}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === '') setTwdAmount('');
-                                else setTwdAmount(parseFloat(val));
-                            }}
-                            onBlur={(e) => {
-                                if (e.target.value === '') setTwdAmount(50000);
-                            }}
-                            className="text-5xl font-black bg-transparent border-none focus:outline-none text-white w-full pr-2"
+                            onChange={(e) => setTwdAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                            onBlur={() => twdAmount === '' && setTwdAmount(50000)}
+                            className="text-6xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter selection:bg-emerald-500/30"
+                            placeholder="0"
                         />
-                        <span className="text-emerald-500 font-black text-2xl">TWD</span>
+                        <span className="text-emerald-500 font-black text-2xl ml-2">TWD</span>
                     </div>
                 </div>
 
-                {/* Result Card */}
-                <div className={`result-card border p-6 rounded-3xl transition-all duration-500 ${results.isAWinner ? 'border-emerald-500/30' : 'border-blue-500/30'}`}>
-                    <div className="flex flex-col gap-4 mb-6">
-                        <div>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 opacity-60">AI 最佳策略建議</p>
-                            <h2 className="text-3xl font-black italic tracking-tight" style={{ color: results.isAWinner ? '#10B981' : '#3B82F6' }}>
-                                {results.isAWinner ? '建議：台幣直換' : '建議：美金中轉'}
-                            </h2>
-                        </div>
-                        <div className="pt-2 border-t border-white/5">
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 opacity-60">預估領取總額</p>
-                            <p className="text-4xl font-black text-white italic tracking-tighter">฿ {(results.isAWinner ? results.totalA : results.totalB).toLocaleString()}</p>
-                        </div>
-                    </div>
+                {/* AI Analysis Result */}
+                <div className={`relative overflow-hidden p-7 rounded-[2rem] border transition-all duration-700 shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
+                    <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] rounded-full ${results.isAWinner ? 'bg-emerald-500/20' : 'bg-blue-500/20'}`}></div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className={`p-4 rounded-2xl border transition-colors ${results.isAWinner ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-white/5 border-white/5'}`}>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">A: 台幣直換</p>
-                            <p className={`text-lg font-black ${results.isAWinner ? 'text-emerald-400' : 'text-white'}`}>฿ {results.totalA.toLocaleString()}</p>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
+                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] opacity-80">AI Strategy Advisory</span>
                         </div>
-                        <div className={`p-4 rounded-2xl border transition-colors ${!results.isAWinner ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/5'}`}>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">B: 美金中轉</p>
-                            <p className={`text-lg font-black ${!results.isAWinner ? 'text-blue-400' : 'text-white'}`}>฿ {results.totalB.toLocaleString()}</p>
-                        </div>
-                    </div>
 
-                    <div className="mt-6 flex items-start gap-2.5 p-4 bg-white/5 rounded-2xl border border-white/5">
-                        <Info className="w-5 h-5 text-slate-500 mt-0.5" />
-                        <p className="text-[12px] text-slate-300 leading-relaxed font-medium">
-                            {results.isAWinner
-                                ? `目前總部台幣匯率強勁！直接兌換可多領 ฿ ${results.diff.toLocaleString()}。推薦直接前往 SuperRich。`
-                                : `美金優勢顯著！建議前往台銀換取 $100 面額美金，到泰國總部後可多換 ฿ ${results.diff.toLocaleString()}。`
-                            }
-                        </p>
+                        <h2 className={`text-4xl font-black tracking-tight mb-6 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`}>
+                            {results.isAWinner ? '台幣直換' : '美金中轉'}
+                            <span className="text-white ml-2">Best Match</span>
+                        </h2>
+
+                        <div className="py-6 border-y border-white/5 space-y-1">
+                            <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">Estimated Yield (THB)</p>
+                            <p className="text-5xl font-black text-white italic tracking-tighter">
+                                ฿ {(results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
+                            </p>
+                        </div>
+
+                        <div className="mt-8 grid grid-cols-2 gap-4">
+                            <div className={`p-5 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30 ring-2 ring-emerald-500/20' : 'bg-white/5 border-white/5'}`}>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">TWD DIRECT</p>
+                                <p className={`text-xl font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
+                            </div>
+                            <div className={`p-5 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' : 'bg-white/5 border-white/5'}`}>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">USD PIVOT</p>
+                                <p className={`text-xl font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 p-5 glass-morphic rounded-2xl border-white/5 flex items-start gap-4">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
+                                <TrendingUp className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
+                            </div>
+                            <p className="text-sm text-slate-300 leading-relaxed font-bold">
+                                {results.isAWinner
+                                    ? `Direct TWD exchange is stronger! You gain an additional ฿ ${results.diff.toLocaleString()}. Secure this rate at SuperRich Head Office.`
+                                    : `USD shows significant leverage! Purchase USD at BOT and exchange in Thailand to net ฿ ${results.diff.toLocaleString()} more.`
+                                }
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4 py-2">
-                    <div className="h-px flex-grow bg-slate-800/50"></div>
-                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">匯率設定</span>
-                    <div className="h-px flex-grow bg-slate-800/50"></div>
+                {/* Trends Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px flex-grow bg-white/5"></div>
+                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Market Dynamics</span>
+                        <div className="h-px flex-grow bg-white/5"></div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                        <TrendChart data={historyTwd} color="#10B981" label="SuperRich TWD Base" />
+                        <TrendChart data={historyUsd} color="#3B82F6" label="SuperRich USD Base" />
+                    </div>
                 </div>
 
-                {/* Input Cards Stack */}
-                <div className="grid grid-cols-1 gap-4 pb-12">
-                    <div className="data-card p-5">
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="label-text text-xs">台銀現鈔賣出 (USD)</label>
-                            <span className="badge bg-blue-500/10 text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-bold">BOT Rate</span>
-                        </div>
-                        <input
-                            type="number"
-                            value={rateUsdSell}
-                            step="0.001"
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === '') setRateUsdSell('');
-                                else setRateUsdSell(parseFloat(val));
-                            }}
-                            className="text-2xl font-bold bg-transparent border-none text-white focus:outline-none"
-                        />
-                    </div>
-
-                    <div className="data-card p-5">
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="label-text text-xs">總部台幣買入 (TWD/THB)</label>
-                            <span className="badge bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold">SR TWD</span>
-                        </div>
-                        <input
-                            type="number"
-                            value={rateTwd}
-                            step="0.001"
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === '') setRateTwd('');
-                                else setRateTwd(parseFloat(val));
-                            }}
-                            className="text-2xl font-bold bg-transparent border-none text-white focus:outline-none"
-                        />
-                    </div>
-
-                    <div className="data-card p-5">
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="label-text text-xs">總部美金買入 (USD/THB)</label>
-                            <span className="badge bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold">SR USD</span>
-                        </div>
-                        <input
-                            type="number"
-                            value={rateUsdBuy}
-                            step="0.01"
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === '') setRateUsdBuy('');
-                                else setRateUsdBuy(parseFloat(val));
-                            }}
-                            className="text-2xl font-bold bg-transparent border-none text-white focus:outline-none"
-                        />
-                    </div>
+                {/* External Links */}
+                <div className="flex gap-3">
+                    <button onClick={() => window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
+                        <Globe className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-300">SuperRich Web</span>
+                    </button>
+                    <button onClick={() => window.open('https://rate.bot.com.tw/xrt?Lang=zh-TW', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
+                        <Landmark className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-300">BOT Cash Rate</span>
+                    </button>
                 </div>
             </div>
+
+            <footer className="mt-12 text-center pb-8 opacity-40">
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Premium System • v2.0</p>
+            </footer>
+
+            <style>{`
+                .glass-morphic {
+                    background: rgba(255, 255, 255, 0.03);
+                    backdrop-filter: blur(20px);
+                    -webkit-backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.07);
+                }
+                .animate-shake {
+                    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+                }
+                @keyframes shake {
+                    10%, 90% { transform: translate3d(-1px, 0, 0); }
+                    20%, 80% { transform: translate3d(2px, 0, 0); }
+                    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+                    40%, 60% { transform: translate3d(4px, 0, 0); }
+                }
+                input::-webkit-outer-spin-button,
+                input::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+            `}</style>
         </div>
     );
 }

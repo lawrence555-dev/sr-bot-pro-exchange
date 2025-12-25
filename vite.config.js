@@ -28,13 +28,28 @@ export default defineConfig({
                     } else if (url.startsWith('/api/rates')) {
                         try {
                             const ratesPath = './src/data/rates.json';
-                            if (import.meta.url && fs.existsSync(ratesPath)) {
+                            if (fs.existsSync(ratesPath)) {
                                 const data = fs.readFileSync(ratesPath, 'utf-8');
                                 res.setHeader('Content-Type', 'application/json');
                                 res.end(data);
                             } else {
                                 res.statusCode = 404;
                                 res.end(JSON.stringify({ error: 'Rates not found' }));
+                            }
+                        } catch (err) {
+                            res.statusCode = 500;
+                            res.end(JSON.stringify({ error: err.message }));
+                        }
+                    } else if (url.startsWith('/api/history')) {
+                        try {
+                            const historyPath = './src/data/history.json';
+                            if (fs.existsSync(historyPath)) {
+                                const data = fs.readFileSync(historyPath, 'utf-8');
+                                res.setHeader('Content-Type', 'application/json');
+                                res.end(data);
+                            } else {
+                                res.statusCode = 404;
+                                res.end(JSON.stringify({ error: 'History not found' }));
                             }
                         } catch (err) {
                             res.statusCode = 500;

@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const OUTPUT_PATH = path.join(__dirname, '../src/data/rates.json');
+const HISTORY_PATH = path.join(__dirname, '../src/data/history.json');
 
 // 確保目錄存在
 const dir = path.dirname(OUTPUT_PATH);
@@ -35,8 +36,8 @@ async function scrapeBOT() {
     return 31.815; // Fallback
 }
 
-async function scrapeSR() {
-    console.log('Fetching SuperRich rates (Playwright)...');
+async function scrapeSR(retries = 2) {
+    console.log(`Fetching SuperRich rates (Playwright), retries left: ${retries}...`);
     const browser = await chromium.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -74,6 +75,10 @@ async function scrapeSR() {
         return rates;
     } catch (error) {
         console.error('SR scraping failed:', error.message);
+        if (retries > 0) {
+            await browser.close();
+            return scrapeSR(retries - 1);
+        }
         return { twdRate: 1.005, usdRate: 31.39 }; // Fallback
     } finally {
         await browser.close();
@@ -87,22 +92,48 @@ async function run() {
             scrapeSR()
         ]);
 
+        const timestamp = new Date().toLocaleString('zh-TW', {
+            hour12: false,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
         const result = {
             botUsd,
             srTwd: srRates.twdRate,
             srUsd: srRates.usdRate,
-            lastUpdated: new Date().toLocaleString('zh-TW', {
-                hour12: false,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            })
+            lastUpdated: timestamp
         };
 
+        // Save current rates
         fs.writeFileSync(OUTPUT_PATH, JSON.stringify(result, null, 2));
         console.log('Successfully saved rates to:', OUTPUT_PATH);
+
+        // Update history
+        let history = [];
+        if (fs.existsSync(HISTORY_PATH)) {
+            try {
+                history = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf-8'));
+            } catch (e) {
+                console.error('History parse failed, resetting...');
+            }
+        }
+        
+        // Add new record
+        history.push({
+            time: timestamp,
+            ...result
+        });
+
+        // Keep last 50 records
+        if (history.length > 50) history = history.slice(-50);
+
+        fs.writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
+        console.log('Successfully updated history at:', HISTORY_PATH);
+        
         console.log(result);
     } catch (error) {
         console.error('Scraping process failed:', error.message);

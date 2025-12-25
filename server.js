@@ -34,13 +34,22 @@ app.get('/api/scrape', (req, res) => {
     });
 });
 
-// 2. Dynamic serving of rates.json
+// 2. Dynamic serving of rates.json & history.json
 app.get('/api/rates', (req, res) => {
     const ratesPath = path.join(__dirname, 'src/data/rates.json');
     if (fs.existsSync(ratesPath)) {
         res.sendFile(ratesPath);
     } else {
         res.status(404).json({ error: 'Rates not found' });
+    }
+});
+
+app.get('/api/history', (req, res) => {
+    const historyPath = path.join(__dirname, 'src/data/history.json');
+    if (fs.existsSync(historyPath)) {
+        res.sendFile(historyPath);
+    } else {
+        res.status(404).json({ error: 'History not found' });
     }
 });
 

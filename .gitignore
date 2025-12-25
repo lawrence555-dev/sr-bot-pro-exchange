@@ -25,4 +25,5 @@ dist-ssr
 
 # Vite
 src/data/rates.json
+src/data/history.json
 ms-playwright
