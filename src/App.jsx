@@ -88,8 +88,8 @@ function App() {
                         <Wallet className="text-white w-6 h-6" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT ANALYTICS</h1>
-                        <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">Live Engine: {lastUpdated}</p>
+                        <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT 匯率分析</h1>
+                        <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">即時引擎: {lastUpdated}</p>
                     </div>
                 </div>
                 <button
@@ -116,7 +116,7 @@ function App() {
                 <div className="glass-morphic p-7 rounded-[2rem] border-emerald-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-emerald-500/40">
                     <div className="flex items-center gap-2 mb-3">
                         <DollarSign className="w-4 h-4 text-emerald-400" />
-                        <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">Investment Budget</label>
+                        <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
                     </div>
                     <div className="flex items-center">
                         <input
@@ -138,16 +138,16 @@ function App() {
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-2">
                             <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
-                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] opacity-80">AI Strategy Advisory</span>
+                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] opacity-80">AI 換匯策略建議</span>
                         </div>
 
                         <h2 className={`text-4xl font-black tracking-tight mb-6 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`}>
                             {results.isAWinner ? '台幣直換' : '美金中轉'}
-                            <span className="text-white ml-2">Best Match</span>
+                            <span className="text-white ml-2">最佳選擇</span>
                         </h2>
 
                         <div className="py-6 border-y border-white/5 space-y-1">
-                            <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">Estimated Yield (THB)</p>
+                            <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">預估換得總額 (THB)</p>
                             <p className="text-5xl font-black text-white italic tracking-tighter">
                                 ฿ {(results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
                             </p>
@@ -155,11 +155,11 @@ function App() {
 
                         <div className="mt-8 grid grid-cols-2 gap-4">
                             <div className={`p-5 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30 ring-2 ring-emerald-500/20' : 'bg-white/5 border-white/5'}`}>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">TWD DIRECT</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">台幣直換</p>
                                 <p className={`text-xl font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
                             </div>
                             <div className={`p-5 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' : 'bg-white/5 border-white/5'}`}>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">USD PIVOT</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">美金中轉</p>
                                 <p className={`text-xl font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
                             </div>
                         </div>
@@ -170,8 +170,8 @@ function App() {
                             </div>
                             <p className="text-sm text-slate-300 leading-relaxed font-bold">
                                 {results.isAWinner
-                                    ? `Direct TWD exchange is stronger! You gain an additional ฿ ${results.diff.toLocaleString()}. Secure this rate at SuperRich Head Office.`
-                                    : `USD shows significant leverage! Purchase USD at BOT and exchange in Thailand to net ฿ ${results.diff.toLocaleString()} more.`
+                                    ? `目前台幣直換最具優勢！您可以多換得 ฿ ${results.diff.toLocaleString()}。推薦前往 SuperRich 總部兌換。`
+                                    : `美金中轉展現強大優勢！先在台銀換取 $100 美金再到泰國總部，可多領 ฿ ${results.diff.toLocaleString()}。`
                                 }
                             </p>
                         </div>
@@ -182,13 +182,13 @@ function App() {
                 <div className="space-y-4">
                     <div className="flex items-center gap-4">
                         <div className="h-px flex-grow bg-white/5"></div>
-                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Market Dynamics</span>
+                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">市場匯率動態分析</span>
                         <div className="h-px flex-grow bg-white/5"></div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
-                        <TrendChart data={historyTwd} color="#10B981" label="SuperRich TWD Base" />
-                        <TrendChart data={historyUsd} color="#3B82F6" label="SuperRich USD Base" />
+                        <TrendChart data={historyTwd} color="#10B981" label="SuperRich 台幣基準趨勢" />
+                        <TrendChart data={historyUsd} color="#3B82F6" label="SuperRich 美金基準趨勢" />
                     </div>
                 </div>
 
@@ -196,17 +196,17 @@ function App() {
                 <div className="flex gap-3">
                     <button onClick={() => window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
                         <Globe className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                        <span className="text-xs font-black uppercase tracking-widest text-slate-300">SuperRich Web</span>
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-300">SuperRich 官網</span>
                     </button>
                     <button onClick={() => window.open('https://rate.bot.com.tw/xrt?Lang=zh-TW', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
                         <Landmark className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                        <span className="text-xs font-black uppercase tracking-widest text-slate-300">BOT Cash Rate</span>
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-300">台銀牌告匯率</span>
                     </button>
                 </div>
             </div>
 
             <footer className="mt-12 text-center pb-8 opacity-40">
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Premium System • v2.0</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity 頂級匯率分析系統 • v2.0</p>
             </footer>
 
             <style>{`
