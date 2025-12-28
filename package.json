@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "vite",
         "scrape": "export PLAYWRIGHT_BROWSERS_PATH=./ms-playwright && node scripts/scraper.js",
-        "build": "export PLAYWRIGHT_BROWSERS_PATH=./ms-playwright && npx playwright install chromium && mkdir -p data && echo '{}' > data/rates.json && vite build",
+        "build": "export PLAYWRIGHT_BROWSERS_PATH=./ms-playwright && npx playwright install chromium && vite build",
         "lint": "eslint .",
         "preview": "vite preview",
         "start": "export PLAYWRIGHT_BROWSERS_PATH=./ms-playwright && node server.js"

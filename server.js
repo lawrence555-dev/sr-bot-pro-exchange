@@ -10,6 +10,18 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
+// Ensure data directory exists
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+}
+
+// 0. Health Check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // 1. API endpoint to trigger scraping
 app.get('/api/scrape', (req, res) => {
     console.log('Production: Scrape request received');
@@ -57,7 +69,7 @@ app.get('/api/history', (req, res) => {
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // 4. Fallback to index.html for SPA routing (MUST BE LAST)
-app.get('*path', (req, res) => {
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
