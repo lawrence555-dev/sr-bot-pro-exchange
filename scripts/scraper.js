@@ -60,6 +60,7 @@ async function scrapeSR(retries = 2) {
     try {
         const context = await browser.newContext({
             userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            viewport: { width: 1920, height: 1080 },
             extraHTTPHeaders: {
                 'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
             }
@@ -117,7 +118,8 @@ async function scrapeSR(retries = 2) {
             await browser.close();
             return scrapeSR(retries - 1);
         }
-        return { twdRate: 1.005, usdRate: 31.39 }; // Fallback
+        // Return nulls or zeros so UI can show error state instead of fake data
+        return { twdRate: 0, usdRate: 0 }; // Fallback to 0 to indicate failure
     } finally {
         await browser.close();
     }

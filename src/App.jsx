@@ -21,7 +21,8 @@ function App() {
 
     const updateRates = async (forceScrape = false) => {
         setLoading(true);
-        setError(null);
+        setLoading(true);
+        // setError(null); // Keep previous error until success
         try {
             if (forceScrape) {
                 const scrapeRes = await fetch('/api/scrape');
@@ -39,13 +40,20 @@ function App() {
             let validData = false;
             if (ratesRes.ok) {
                 const newData = await ratesRes.json();
-                // Validate that we have actual numbers
+                // Validate that we have actual numbers and they are valid (greater than 0)
                 if (typeof newData.botUsd === 'number' && typeof newData.srTwd === 'number' && typeof newData.srUsd === 'number') {
-                    setRateUsdSell(newData.botUsd);
-                    setRateTwd(newData.srTwd);
-                    setRateUsdBuy(newData.srUsd);
-                    setLastUpdated(newData.lastUpdated);
-                    validData = true;
+                    if (newData.srTwd > 0 && newData.srUsd > 0) {
+                        setRateUsdSell(newData.botUsd);
+                        setRateTwd(newData.srTwd);
+                        setRateUsdBuy(newData.srUsd);
+                        setLastUpdated(newData.lastUpdated);
+                        setError(null); // Clear error only on success
+                        validData = true;
+                    } else {
+                        const errMsg = '抓取數據異常 (Retrieved 0)';
+                        console.warn(errMsg);
+                        setError(errMsg);
+                    }
                 }
             }
 
@@ -110,7 +118,10 @@ function App() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT 匯率分析</h1>
-                            <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">即時引擎: {lastUpdated}</p>
+                            <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">
+                                即時引擎: {lastUpdated}
+                                {error && <span className="text-amber-500 ml-2 animate-pulse">(!Sync Failed)</span>}
+                            </p>
                         </div>
                     </div>
                     <button
