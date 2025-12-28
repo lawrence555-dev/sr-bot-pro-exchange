@@ -75,4 +75,17 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+
+    // Auto-scrape on startup to ensure fresh data
+    console.log('Startup: Triggering auto-scrape...');
+    const scriptPath = path.join(__dirname, 'scripts/scraper.js');
+    exec(`node "${scriptPath}"`, { maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Startup scrape failed: ${error.message}`);
+            console.error(`Stderr: ${stderr}`);
+        } else {
+            console.log('Startup scrape completed successfully');
+            console.log('Stdout:', stdout);
+        }
+    });
 });
