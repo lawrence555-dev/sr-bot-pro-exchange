@@ -19,7 +19,17 @@ if (!fs.existsSync(dir)) {
 async function scrapeBOT() {
     console.log('Fetching BOT rates (CSV)...');
     try {
-        const response = await axios.get('https://rate.bot.com.tw/xrt/flcsv/0/day', { timeout: 10000 });
+        const response = await axios.get('https://rate.bot.com.tw/xrt/flcsv/0/day', {
+            timeout: 10000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+                'Referer': 'https://rate.bot.com.tw/',
+                'Origin': 'https://rate.bot.com.tw/',
+                'Connection': 'keep-alive'
+            }
+        });
         const csvData = response.data;
         const lines = csvData.split('\n');
         for (const line of lines) {
@@ -32,6 +42,11 @@ async function scrapeBOT() {
         }
     } catch (error) {
         console.error('BOT fetch failed:', error.message);
+        if (error.response) {
+            console.error('Error Status:', error.response.status);
+            console.error('Error Headers:', JSON.stringify(error.response.headers));
+            console.error('Error Body Preview:', typeof error.response.data === 'string' ? error.response.data.substring(0, 500) : error.response.data);
+        }
     }
     return 31.815; // Fallback
 }
@@ -44,7 +59,10 @@ async function scrapeSR(retries = 2) {
     });
     try {
         const context = await browser.newContext({
-            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            extraHTTPHeaders: {
+                'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+            }
         });
         const page = await context.newPage();
 
