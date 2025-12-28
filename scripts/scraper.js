@@ -7,8 +7,8 @@ import { chromium } from 'playwright';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const OUTPUT_PATH = path.join(__dirname, '../src/data/rates.json');
-const HISTORY_PATH = path.join(__dirname, '../src/data/history.json');
+const OUTPUT_PATH = path.join(__dirname, '../data/rates.json');
+const HISTORY_PATH = path.join(__dirname, '../data/history.json');
 
 // 確保目錄存在
 const dir = path.dirname(OUTPUT_PATH);
@@ -71,6 +71,25 @@ async function scrapeSR(retries = 2) {
         // 等待特定選項載入以確保 API 已回傳 (因為是隱藏的，使用 state: 'attached')
         await page.waitForSelector('select#selectCurrency option[data-unit="TWD"]', { state: 'attached', timeout: 30000 });
 
+        // Check if USD option exists
+        const usdExists = await page.evaluate(() => {
+            const el = document.querySelector('select#selectCurrency option[data-unit="USD"][data-demon="100"]');
+            return !!el;
+        });
+        console.log('USD Option Exists:', usdExists);
+
+        if (!usdExists) {
+            console.log('Dumping all USD options...');
+            const options = await page.evaluate(() => {
+                return Array.from(document.querySelectorAll('select#selectCurrency option[data-unit="USD"]')).map(opt => ({
+                    text: opt.innerText,
+                    demon: opt.getAttribute('data-demon'),
+                    buy: opt.getAttribute('data-buy')
+                }));
+            });
+            console.log('Available USD Options:', JSON.stringify(options, null, 2));
+        }
+
         const rates = await page.evaluate(() => {
             const getRate = (unit, demon) => {
                 const selector = demon
@@ -87,6 +106,7 @@ async function scrapeSR(retries = 2) {
         });
 
         if (!rates.twdRate || !rates.usdRate) {
+            console.error('Rates extraction failed. TWD:', rates.twdRate, 'USD:', rates.usdRate);
             throw new Error('SR rates extraction failed');
         }
 

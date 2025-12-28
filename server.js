@@ -36,7 +36,7 @@ app.get('/api/scrape', (req, res) => {
 
 // 2. Dynamic serving of rates.json & history.json
 app.get('/api/rates', (req, res) => {
-    const ratesPath = path.join(__dirname, 'src/data/rates.json');
+    const ratesPath = path.join(__dirname, 'data/rates.json');
     if (fs.existsSync(ratesPath)) {
         res.sendFile(ratesPath);
     } else {
@@ -45,7 +45,7 @@ app.get('/api/rates', (req, res) => {
 });
 
 app.get('/api/history', (req, res) => {
-    const historyPath = path.join(__dirname, 'src/data/history.json');
+    const historyPath = path.join(__dirname, 'data/history.json');
     if (fs.existsSync(historyPath)) {
         res.sendFile(historyPath);
     } else {
