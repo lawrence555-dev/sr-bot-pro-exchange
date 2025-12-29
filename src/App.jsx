@@ -153,84 +153,107 @@ function App() {
                     </button>
                 </header>
 
-                <div className="relative z-10 flex-grow flex flex-col gap-6">
-                    {/* Input Block (Always visible or pinned) */}
-                    <div className="glass-morphic p-7 rounded-[2rem] border-emerald-500/20 shadow-2xl">
+                <div className="relative z-10 flex-grow flex flex-col gap-5">
+                    {/* Input Block */}
+                    <div className="glass-morphic p-7 rounded-[2.5rem] border-emerald-500/20 shadow-2xl transition-all duration-300 hover:border-emerald-500/40">
                         <div className="flex items-center gap-2 mb-3">
                             <DollarSign className="w-4 h-4 text-emerald-400" />
-                            <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算</label>
+                            <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
                         </div>
                         <div className="flex items-center">
                             <input
                                 type="number"
                                 value={twdAmount}
                                 onChange={(e) => setTwdAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                className="text-5xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter"
+                                className="text-6xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter"
                                 placeholder="0"
                             />
-                            <span className="text-emerald-500 font-black text-xl ml-2">TWD</span>
+                            <span className="text-emerald-500 font-black text-2xl ml-2">TWD</span>
                         </div>
                     </div>
 
-                    {/* Carousel Area */}
+                    {/* Pagination Indicator */}
+                    <div className="flex justify-center gap-2">
+                        <div className={`h-1.5 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-8 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-1.5 bg-white/20'}`}></div>
+                        <div className={`h-1.5 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-8 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'w-1.5 bg-white/20'}`}></div>
+                    </div>
+
+                    {/* Responsive Carousel Area */}
                     <div
-                        className="relative min-h-[440px] touch-pan-y"
+                        className="relative flex-grow touch-pan-y"
                         onTouchStart={onTouchStart}
                         onTouchEnd={onTouchEnd}
                     >
-                        {/* Pagination Dots */}
-                        <div className="flex justify-center gap-2 mb-4">
-                            <div className={`h-1.5 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-6 bg-emerald-500' : 'w-1.5 bg-white/20'}`}></div>
-                            <div className={`h-1.5 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-6 bg-blue-500' : 'w-1.5 bg-white/20'}`}></div>
-                        </div>
-
-                        <div className="relative w-full h-full overflow-hidden">
-                            {/* Card A: Recommendations */}
-                            <div className={`absolute inset-0 transition-all duration-500 transform ${viewMode === 'rates' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'}`}>
-                                <div className={`relative overflow-hidden p-7 h-full rounded-[2rem] border transition-all duration-700 shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
+                        <div className="relative w-full h-full overflow-hidden min-h-[480px]">
+                            {/* Card A: Detailed Rates & Strategy */}
+                            <div className={`absolute inset-0 transition-all duration-500 ease-out transform ${viewMode === 'rates' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'}`}>
+                                <div className={`h-full flex flex-col p-7 rounded-[2.5rem] border shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
                                     <div className="flex items-center gap-2 mb-2">
                                         <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
-                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">AI 策略建議</span>
+                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-80">AI 換匯最佳路徑</span>
                                     </div>
+
                                     <h2 className={`text-4xl font-black tracking-tight mb-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`}>
                                         {results.isAWinner ? '台幣直換' : '美金中轉'}
+                                        <span className="text-white ml-2 text-xl italic font-light">PRO</span>
                                     </h2>
-                                    <div className="py-6 border-y border-white/5 space-y-1">
+
+                                    <div className="py-5 border-y border-white/5 space-y-1">
                                         <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">預估換得總額 (THB)</p>
                                         <p className="text-5xl font-black text-white italic tracking-tighter">
                                             ฿ {(results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
                                         </p>
                                     </div>
-                                    <div className="mt-6 flex flex-col gap-4">
-                                        <div className="flex justify-between items-center text-sm font-bold bg-white/5 p-4 rounded-2xl border border-white/5">
-                                            <span className="text-slate-500 uppercase italic">Profit Margin</span>
-                                            <span className={results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}>
-                                                {results.isAWinner ? 'HIGH EFFICIENCY' : 'SMART SAVING'}
-                                            </span>
+
+                                    {/* Restored: Detailed Comparison Block (鄉間區塊) */}
+                                    <div className="mt-6 grid grid-cols-2 gap-4">
+                                        <div className={`p-4 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
+                                            <p className="text-[10px] font-black text-slate-500 uppercase mb-1">台幣直換</p>
+                                            <p className={`text-lg font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
                                         </div>
-                                        <p className="text-xs text-slate-400 leading-relaxed font-medium text-center italic opacity-60">
-                                            Swipe Left to see 30-Day Trend →
+                                        <div className={`p-4 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
+                                            <p className="text-[10px] font-black text-slate-500 uppercase mb-1">美金中轉</p>
+                                            <p className={`text-lg font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Restored: Analysis Text */}
+                                    <div className="mt-6 p-4 glass-morphic rounded-2xl border-white/5 flex items-start gap-4">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
+                                            <TrendingUp className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
+                                        </div>
+                                        <p className="text-xs text-slate-300 leading-relaxed font-bold">
+                                            {results.isAWinner
+                                                ? `台幣直換每 $1 萬可多省 ฿ ${Math.floor(results.diff / (twdAmount / 10000) || 0)}。推薦前往 SuperRich 總部。`
+                                                : `美金中轉目前展現優勢，估計可多領 ฿ ${results.diff.toLocaleString()}。推薦先換美金。`
+                                            }
                                         </p>
                                     </div>
+                                    <p className="mt-auto pt-4 text-[10px] text-slate-500 text-center font-bold tracking-widest animate-pulse">
+                                        ← 向左滑動 檢視 30 天趨勢 →
+                                    </p>
                                 </div>
                             </div>
 
                             {/* Card B: Interactive Chart */}
-                            <div className={`absolute inset-0 transition-all duration-500 transform ${viewMode === 'chart' ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'}`}>
-                                <div className="glass-morphic p-6 h-full rounded-[2rem] border-blue-500/20 shadow-2xl flex flex-col">
+                            <div className={`absolute inset-0 transition-all duration-500 ease-out transform ${viewMode === 'chart' ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'}`}>
+                                <div className="h-full flex flex-col p-6 rounded-[2.5rem] border border-blue-500/20 shadow-2xl glass-morphic">
                                     <div className="flex items-center gap-2 mb-6">
-                                        <TrendingUp className="w-4 h-4 text-blue-400" />
-                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">30 天匯率趨勢分析</span>
+                                        <TrendingUp className="w-5 h-5 text-blue-400" />
+                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">30 天歷史匯率動態分析</span>
                                     </div>
-                                    <div className="flex-grow flex items-center justify-center">
+                                    <div className="flex-grow flex items-center justify-center min-h-[300px]">
                                         {history.length > 0 ? (
                                             <InteractiveChart data={history} />
                                         ) : (
-                                            <div className="text-slate-500 text-xs animate-pulse font-bold tracking-tighter">分析中...</div>
+                                            <div className="flex flex-col items-center gap-3 text-slate-500">
+                                                <Loader2 className="w-8 h-8 animate-spin opacity-50" />
+                                                <span className="text-xs font-bold animate-pulse uppercase tracking-widest">分析引擎載入中...</span>
+                                            </div>
                                         )}
                                     </div>
-                                    <p className="text-xs text-slate-400 leading-relaxed font-medium text-center italic opacity-60 mt-4">
-                                        ← Swipe Right to see Live Strategy
+                                    <p className="mt-auto pt-4 text-[10px] text-slate-500 text-center font-bold tracking-widest">
+                                        ← 向右滑動 返回即時分析
                                     </p>
                                 </div>
                             </div>
