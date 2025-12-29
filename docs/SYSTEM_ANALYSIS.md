@@ -23,25 +23,26 @@ graph TD
             RatesAPI
             HistoryAPI
             SeedLogic
+        end
     end
     
     subgraph "Persistent Storage (Zeabur Volume)"
         Volume["/app/data"]
-        HistoryFile[history.json]
+        HistoryFile["history.json"]
         Volume --- HistoryFile
     end
     
     %% Flows
-    ScraperService -->|Fetch| ExternalBanks["BOT (Bank) & SR (Exchange)"]
-    ScraperService -->|Daily Upsert| HistoryFile
-    SeedLogic -->|Boot Fill| HistoryFile
-    RatesAPI -->|Read| HistoryFile
-    HistoryAPI -->|Read| HistoryFile
+    ScraperService -->|"Fetch"| ExternalBanks["BOT (Bank) & SR (Exchange)"]
+    ScraperService -->|"Daily Upsert"| HistoryFile
+    SeedLogic -->|"Boot Fill"| HistoryFile
+    RatesAPI -->|"Read"| HistoryFile
+    HistoryAPI -->|"Read"| HistoryFile
     
-    StaticFE -->|Render| Carousel["Swipeable Carousel (App.jsx)"]
-    Carousel -->|Page 1| StrategyCard["AI Strategy Card"]
-    Carousel -->|Page 2| Recharts["Interactive Chart (Recharts)"]
-    Recharts -.->|Fetch Data| HistoryAPI
+    StaticFE -->|"Render"| Carousel["Swipeable Carousel (App.jsx)"]
+    Carousel -->|"Page 1"| StrategyCard["AI Strategy Card"]
+    Carousel -->|"Page 2"| Recharts["Interactive Chart (Recharts)"]
+    Recharts -.->|"Fetch Data"| HistoryAPI
 ```
 
 ## 2. 資料流流程圖 (Data Flow)

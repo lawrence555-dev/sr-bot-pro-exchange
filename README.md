@@ -24,17 +24,17 @@
 
 ```mermaid
 graph TD
-    User((使用者 / iPhone)) -->|Swipe/Refresh| App[React App v2.2]
-    App -->|GET /api/rates| Express[Express Server]
-    App -->|GET /api/history| Express
-    Express -->|Read/Write| DB[(/app/data/history.json)]
+    User((使用者 / iPhone)) -->|"Swipe/Refresh"| App[React App v2.2]
+    App -->|"GET /api/rates"| Express[Express Server]
+    App -->|"GET /api/history"| Express
+    Express -->|"Read/Write"| DB[(/app/data/history.json)]
     
     subgraph "Automation & Continuity"
-        Express -->|In-Process Scheduler| Scraper[Playwright Scraper]
-        Express -->|Startup Seed| DB
+        Express -->|"In-Process Scheduler"| Scraper[Playwright Scraper]
+        Express -->|"Startup Seed"| DB
     end
     
-    Scraper -->|Daily Upsert| DB
+    Scraper -->|"Daily Upsert"| DB
 ```
 
 ## 🌐 雲端部署 (Zeabur)
