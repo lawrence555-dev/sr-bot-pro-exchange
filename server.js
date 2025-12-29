@@ -1,9 +1,8 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
-import Rate from './models/Rate.js';
+import fs from 'fs';
 import { scrapeAllRates } from './scripts/scraper.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,68 +11,82 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// MongoDB Connection
-if (process.env.MONGODB_URI) {
-    mongoose.connect(process.env.MONGODB_URI)
-        .then(() => console.log('MongoDB Connected Successfully'))
-        .catch(err => {
-            console.error('MongoDB Connection Failed:', err.message);
-            if (err.code === 18) {
-                console.error('================================================');
-                console.error('[HINT] Authentication Failed (Code 18).');
-                console.error('1. Check if your Username/Password is correct.');
-                console.error('2. IMPORTANT: If your password contains special characters (@, :, /, #), they MUST be URL Encoded.');
-                console.error('   Example: "@" -> "%40", ":" -> "%3A"');
-                console.error('================================================');
-            }
-        });
-} else {
-    console.warn('MONGODB_URI not found in env, skipping DB connection');
+// Ensure data directory exists
+const DATA_DIR = path.join(__dirname, 'data');
+const HISTORY_PATH = path.join(DATA_DIR, 'history.json');
+
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-// Helper: Save daily rate to DB (Upsert)
+// Helper: Get Taiwan Date String (YYYY-MM-DD)
+function getTaiwanDateStr(dateObj) {
+    return dateObj.toLocaleDateString('zh-TW', {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).replace(/\//g, '-');
+}
+
+// Helper: Save daily rate to JSON file (Upsert + 30 days limit)
 async function saveDailyRate(data) {
-    if (!mongoose.connection.readyState) {
-        console.warn('DB not connected, skipping save.');
-        return;
-    }
-
     try {
-        const recordTime = new Date();
-        const dateStr = recordTime.toLocaleDateString('zh-TW', {
-            timeZone: 'Asia/Taipei',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).replace(/\//g, '-'); // YYYY-MM-DD
+        let history = [];
+        if (fs.existsSync(HISTORY_PATH)) {
+            try {
+                history = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'));
+                if (!Array.isArray(history)) history = [];
+            } catch (e) {
+                console.error('[File] Error reading history.json, resetting:', e.message);
+                history = [];
+            }
+        }
 
-        const updatedRate = await Rate.findOneAndUpdate(
-            { dateStr: dateStr }, // Filter by today's date
-            {
-                $set: {
-                    botUsd: data.botUsd,
-                    srTwd: data.srTwd,
-                    srUsd: data.srUsd,
-                    recordTime: recordTime,
-                    dateStr: dateStr,
-                    createdAt: new Date() // Renew TTL
-                }
-            },
-            { upsert: true, new: true }
-        );
+        const now = new Date();
+        const dateStr = getTaiwanDateStr(now);
+        const lastUpdatedFormatted = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
 
-        console.log(`[DB] Successfully saved/updated rate for ${dateStr}:`, updatedRate._id);
-        return updatedRate;
+        const newRecord = {
+            dateStr: dateStr, // Key for uniqueness
+            recordTime: now.toISOString(),
+            lastUpdated: lastUpdatedFormatted,
+            botUsd: data.botUsd,
+            srTwd: data.srTwd,
+            srUsd: data.srUsd
+        };
+
+        // 1. Upsert Logic: Check if today's record exists
+        const existingIndex = history.findIndex(item => item.dateStr === dateStr);
+
+        if (existingIndex !== -1) {
+            console.log(`[File] Updating existing record for ${dateStr}`);
+            history[existingIndex] = newRecord;
+        } else {
+            console.log(`[File] Adding new record for ${dateStr}`);
+            history.push(newRecord);
+        }
+
+        // 2. Sort by Date (Old -> New) to ensure correct slicing
+        history.sort((a, b) => new Date(a.recordTime) - new Date(b.recordTime));
+
+        // 3. Keep only last 30 days
+        if (history.length > 30) {
+            console.log(`[File] Trimming history to last 30 days`);
+            history = history.slice(-30);
+        }
+
+        // 4. Write back
+        fs.writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
+        console.log('[File] Successfully saved to history.json');
+        return newRecord;
+
     } catch (error) {
-        console.error('[DB] Save daily rate failed:', error.message);
+        console.error('[File] Save daily rate failed:', error.message);
     }
 }
 
 // Scheduler: Run every day at 23:50 (Asia/Taipei)
-// Note: node-cron uses server time. Zeabur default is usually UTC.
-// 23:50 Taipei = 15:50 UTC. 
-// However, to be safe, we can specify timezone if the system supports it, 
-// or simpler: rely on `timezone` option in node-cron.
 cron.schedule('50 23 * * *', async () => {
     console.log('[Cron] Starting daily scrape job...');
     try {
@@ -96,48 +109,51 @@ app.get('/api/scrape', async (req, res) => {
     console.log('Manual Scrape request received');
     try {
         const data = await scrapeAllRates();
-        await saveDailyRate(data);
-        res.json({ success: true, data });
+        const savedRecord = await saveDailyRate(data);
+        res.json({ success: true, data: savedRecord });
     } catch (error) {
         console.error('Manual scrape failed:', error.message);
         res.status(500).json({ error: 'Scrape failed', details: error.message });
     }
 });
 
-// 2. Get latest rates (from DB)
-app.get('/api/rates', async (req, res) => {
+// 2. Get latest rates (from File)
+app.get('/api/rates', (req, res) => {
     try {
-        const latestRate = await Rate.findOne().sort({ recordTime: -1 });
-        if (latestRate) {
-            res.json({
-                botUsd: latestRate.botUsd,
-                srTwd: latestRate.srTwd,
-                srUsd: latestRate.srUsd,
-                lastUpdated: latestRate.recordTime.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
-            });
+        if (!fs.existsSync(HISTORY_PATH)) {
+            return res.status(404).json({ error: 'No data available' });
+        }
+        const history = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'));
+        const latestInfo = history[history.length - 1]; // Last item is newest
+
+        if (latestInfo) {
+            res.json(latestInfo);
         } else {
             res.status(404).json({ error: 'No rates found' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'DB Query Failed', details: error.message });
+        res.status(500).json({ error: 'Read File Failed', details: error.message });
     }
 });
 
-// 3. Get history (from DB)
-app.get('/api/history', async (req, res) => {
+// 3. Get history (from File)
+app.get('/api/history', (req, res) => {
     try {
-        const history = await Rate.find().sort({ recordTime: -1 }).limit(30);
-        const formattedHistory = history.map(h => ({
-            time: h.recordTime.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
-            botUsd: h.botUsd,
-            srTwd: h.srTwd,
-            srUsd: h.srUsd,
-            lastUpdated: h.recordTime.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
-        })).reverse(); // Reverse to chronological order (Old -> New) for charts
+        if (!fs.existsSync(HISTORY_PATH)) {
+            return res.json([]); // Return empty array if no file
+        }
+        const history = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'));
 
-        res.json(formattedHistory);
+        // For chart display, usually we want Oldest -> Newest (left to right).
+        // But the user's previous request implemented reverse(). 
+        // Let's verify: The previous code did "reverse() // New -> Old".
+        // Let's stick to returning raw history (Old -> New) or whatever frontend expects.
+        // Frontend likely renders whatever it gets.
+        // Let's reverse it to match previous behavior: Newest first.
+        res.json([...history].reverse());
+
     } catch (error) {
-        res.status(500).json({ error: 'DB Query Failed', details: error.message });
+        res.status(500).json({ error: 'Read File Failed', details: error.message });
     }
 });
 
@@ -151,8 +167,9 @@ app.use((req, res) => {
 
 app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Data Directory: ${DATA_DIR}`);
 
-    // Auto-scrape on startup (Optional: keep this if user wants immediate data on deploy)
+    // Auto-scrape on startup
     console.log('Startup: Triggering auto-scrape...');
     try {
         const data = await scrapeAllRates();
