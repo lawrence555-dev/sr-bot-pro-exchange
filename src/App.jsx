@@ -274,7 +274,7 @@ function App() {
                         </button>
                     </div>
                     <footer className="text-center opacity-30">
-                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Pro • v2.1 • {lastUpdated}</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Pro • v2.2 (Final Sync) • {lastUpdated}</p>
                     </footer>
                 </div>
             </div>
