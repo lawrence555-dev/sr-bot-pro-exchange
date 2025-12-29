@@ -19,6 +19,42 @@ if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
+// Helper: Seed mock data if history is empty (for first-time deployment/volume)
+function seedMockData() {
+    if (fs.existsSync(HISTORY_PATH)) {
+        try {
+            const history = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'));
+            if (Array.isArray(history) && history.length > 5) return; // Already has data
+        } catch (e) { }
+    }
+
+    console.log('[Seed] Seeding 30 days of mock data...');
+    const now = new Date();
+    const mockData = [];
+    for (let i = 29; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+
+        // Logical variations
+        const srTwd = 0.98 + (Math.random() * 0.04);
+        const botUsd = 31.8 + (Math.random() * 0.4);
+        const srUsd = 31.4 + (Math.random() * 0.4);
+
+        mockData.push({
+            dateStr,
+            recordTime: d.toISOString(),
+            lastUpdated: d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
+            botUsd: parseFloat(botUsd.toFixed(2)),
+            srTwd: parseFloat(srTwd.toFixed(3)),
+            srUsd: parseFloat(srUsd.toFixed(2))
+        });
+    }
+    fs.writeFileSync(HISTORY_PATH, JSON.stringify(mockData, null, 2));
+}
+
+seedMockData();
+
 // Helper: Get Taiwan Date String (YYYY-MM-DD)
 function getTaiwanDateStr(dateObj) {
     return dateObj.toLocaleDateString('zh-TW', {

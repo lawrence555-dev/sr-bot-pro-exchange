@@ -80,9 +80,25 @@ function App() {
         }
     };
 
+    const [viewMode, setViewMode] = useState('rates'); // 'rates' | 'chart'
+
     useEffect(() => {
         updateRates();
     }, []);
+
+    const handleSwipe = (direction) => {
+        if (direction === 'left' && viewMode === 'rates') setViewMode('chart');
+        if (direction === 'right' && viewMode === 'chart') setViewMode('rates');
+    };
+
+    // Simple swipe detection logic
+    let touchStart = 0;
+    const onTouchStart = (e) => (touchStart = e.targetTouches[0].clientX);
+    const onTouchEnd = (e) => {
+        const touchEnd = e.changedTouches[0].clientX;
+        if (touchStart - touchEnd > 50) handleSwipe('left');
+        if (touchStart - touchEnd < -50) handleSwipe('right');
+    };
 
     useEffect(() => {
         // Safe calculations with fallback to prevent NaN
@@ -104,14 +120,13 @@ function App() {
     const historyUsd = history.map(h => ({ time: h.time, value: h.srUsd }));
 
     return (
-        <div className="w-full max-w-[440px] mx-auto bg-[#08090C] text-white font-['Outfit'] antialiased">
+        <div className="w-full max-w-[440px] mx-auto bg-[#08090C] text-white font-['Outfit'] antialiased overflow-x-hidden">
             {/* Background Glow */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 blur-[120px] rounded-full"></div>
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full"></div>
             </div>
 
-            {/* First Viewport Height Section */}
             <div className="min-h-[100dvh] flex flex-col p-6 pb-2">
                 {/* Header */}
                 <header className="relative z-10 flex justify-between items-center mb-6 pt-4">
@@ -120,10 +135,9 @@ function App() {
                             <Wallet className="text-white w-6 h-6" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT 匯率分析</h1>
+                            <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT PRO</h1>
                             <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">
-                                即時引擎: {lastUpdated}
-                                {error && <span className="text-amber-500 ml-2 animate-pulse">(!Sync Failed)</span>}
+                                {viewMode === 'rates' ? '即時換匯分析' : '30 天趨勢監測'}
                             </p>
                         </div>
                     </div>
@@ -134,129 +148,112 @@ function App() {
                         {loading ? (
                             <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
                         ) : (
-                            <RefreshCw className="w-5 h-5 text-emerald-400 hover:rotate-180 transition-transform duration-500" />
+                            <RefreshCw className="w-5 h-5 text-emerald-400" />
                         )}
                     </button>
                 </header>
 
-                {error && (
-                    <div className="relative z-10 mb-6 p-4 glass-morphic border-amber-500/30 rounded-2xl text-amber-400 text-xs font-bold flex items-center gap-3 animate-shake">
-                        <Info className="w-5 h-5 flex-shrink-0" />
-                        {error}
+                <div className="relative z-10 flex-grow flex flex-col gap-6">
+                    {/* Input Block (Always visible or pinned) */}
+                    <div className="glass-morphic p-7 rounded-[2rem] border-emerald-500/20 shadow-2xl">
+                        <div className="flex items-center gap-2 mb-3">
+                            <DollarSign className="w-4 h-4 text-emerald-400" />
+                            <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算</label>
+                        </div>
+                        <div className="flex items-center">
+                            <input
+                                type="number"
+                                value={twdAmount}
+                                onChange={(e) => setTwdAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                                className="text-5xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter"
+                                placeholder="0"
+                            />
+                            <span className="text-emerald-500 font-black text-xl ml-2">TWD</span>
+                        </div>
                     </div>
-                )}
 
-                <div className="relative z-10 flex-grow flex flex-col justify-between">
-                    <div className="space-y-6">
-                        {/* Budget input with pulse effect */}
-                        <div className="glass-morphic p-7 rounded-[2rem] border-emerald-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-emerald-500/40">
-                            <div className="flex items-center gap-2 mb-3">
-                                <DollarSign className="w-4 h-4 text-emerald-400" />
-                                <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
-                            </div>
-                            <div className="flex items-center">
-                                <input
-                                    type="number"
-                                    value={twdAmount}
-                                    onChange={(e) => setTwdAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                    onBlur={() => twdAmount === '' && setTwdAmount(50000)}
-                                    className="text-6xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter selection:bg-emerald-500/30"
-                                    placeholder="0"
-                                />
-                                <span className="text-emerald-500 font-black text-2xl ml-2">TWD</span>
-                            </div>
+                    {/* Carousel Area */}
+                    <div
+                        className="relative min-h-[440px] touch-pan-y"
+                        onTouchStart={onTouchStart}
+                        onTouchEnd={onTouchEnd}
+                    >
+                        {/* Pagination Dots */}
+                        <div className="flex justify-center gap-2 mb-4">
+                            <div className={`h-1.5 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-6 bg-emerald-500' : 'w-1.5 bg-white/20'}`}></div>
+                            <div className={`h-1.5 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-6 bg-blue-500' : 'w-1.5 bg-white/20'}`}></div>
                         </div>
 
-                        {/* AI Analysis Result */}
-                        <div className={`relative overflow-hidden p-7 rounded-[2rem] border transition-all duration-700 shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
-                            <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] rounded-full ${results.isAWinner ? 'bg-emerald-500/20' : 'bg-blue-500/20'}`}></div>
-
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
-                                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] opacity-80">AI 換匯策略建議</span>
+                        <div className="relative w-full h-full overflow-hidden">
+                            {/* Card A: Recommendations */}
+                            <div className={`absolute inset-0 transition-all duration-500 transform ${viewMode === 'rates' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'}`}>
+                                <div className={`relative overflow-hidden p-7 h-full rounded-[2rem] border transition-all duration-700 shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
+                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">AI 策略建議</span>
+                                    </div>
+                                    <h2 className={`text-4xl font-black tracking-tight mb-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`}>
+                                        {results.isAWinner ? '台幣直換' : '美金中轉'}
+                                    </h2>
+                                    <div className="py-6 border-y border-white/5 space-y-1">
+                                        <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">預估換得總額 (THB)</p>
+                                        <p className="text-5xl font-black text-white italic tracking-tighter">
+                                            ฿ {(results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div className="mt-6 flex flex-col gap-4">
+                                        <div className="flex justify-between items-center text-sm font-bold bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <span className="text-slate-500 uppercase italic">Profit Margin</span>
+                                            <span className={results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}>
+                                                {results.isAWinner ? 'HIGH EFFICIENCY' : 'SMART SAVING'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-slate-400 leading-relaxed font-medium text-center italic opacity-60">
+                                            Swipe Left to see 30-Day Trend →
+                                        </p>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <h2 className={`text-4xl font-black tracking-tight mb-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`}>
-                                    {results.isAWinner ? '台幣直換' : '美金中轉'}
-                                    <span className="text-white ml-2 text-xl italic font-light">BEST RATE</span>
-                                </h2>
-
-                                <div className="py-4 border-y border-white/5 space-y-1">
-                                    <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-60">預估換得總額 (THB)</p>
-                                    <p className="text-5xl font-black text-white italic tracking-tighter">
-                                        ฿ {loading && results.totalA === 0 ? '...' : (results.isAWinner ? results.totalA : results.totalB).toLocaleString()}
+                            {/* Card B: Interactive Chart */}
+                            <div className={`absolute inset-0 transition-all duration-500 transform ${viewMode === 'chart' ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'}`}>
+                                <div className="glass-morphic p-6 h-full rounded-[2rem] border-blue-500/20 shadow-2xl flex flex-col">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <TrendingUp className="w-4 h-4 text-blue-400" />
+                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">30 天匯率趨勢分析</span>
+                                    </div>
+                                    <div className="flex-grow flex items-center justify-center">
+                                        {history.length > 0 ? (
+                                            <InteractiveChart data={history} />
+                                        ) : (
+                                            <div className="text-slate-500 text-xs animate-pulse font-bold tracking-tighter">分析中...</div>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-slate-400 leading-relaxed font-medium text-center italic opacity-60 mt-4">
+                                        ← Swipe Right to see Live Strategy
                                     </p>
                                 </div>
-
-                                <div className="mt-6 grid grid-cols-2 gap-4">
-                                    <div className={`p-5 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30 ring-2 ring-emerald-500/20' : 'bg-white/5 border-white/5'}`}>
-                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-2">台幣直換</p>
-                                        <p className={`text-xl font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {loading && results.totalA === 0 ? '...' : results.totalA.toLocaleString()}</p>
-                                    </div>
-                                    <div className={`p-5 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30 ring-2 ring-blue-500/20' : 'bg-white/5 border-white/5'}`}>
-                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-2">美金中轉</p>
-                                        <p className={`text-xl font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {loading && results.totalB === 0 ? '...' : results.totalB.toLocaleString()}</p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-6 p-5 glass-morphic rounded-2xl border-white/5 flex items-start gap-4">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
-                                        <TrendingUp className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
-                                    </div>
-                                    <p className="text-sm text-slate-300 leading-relaxed font-bold">
-                                        {results.isAWinner
-                                            ? `目前台幣直換最具優勢！您可以多換得 ฿ ${results.diff.toLocaleString()}。推薦前往 SuperRich 總部兌換。`
-                                            : `美金中轉展現強大優勢！先在台銀換取 $100 美金再到泰國總部，可多領 ฿ ${results.diff.toLocaleString()}。`
-                                        }
-                                    </p>
-                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Trends Divider - Pushed to the very bottom of the first fold */}
-                    <div className="mt-8 space-y-4">
-                        <div className="flex items-center gap-4">
-                            <div className="h-px flex-grow bg-white/10"></div>
-                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">市場匯率動態分析</span>
-                            <div className="h-px flex-grow bg-white/10"></div>
-                        </div>
+                {/* Bottom Info / Links */}
+                <div className="mt-8 space-y-6 pb-8">
+                    <div className="flex gap-3">
+                        <button onClick={() => window.open('https://www.superrichthailand.com', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-2 group">
+                            <Globe className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[9px] font-black uppercase text-slate-500">SuperRich</span>
+                        </button>
+                        <button onClick={() => window.open('https://rate.bot.com.tw', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-2 group">
+                            <Landmark className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[9px] font-black uppercase text-slate-500">BOT Bank</span>
+                        </button>
                     </div>
+                    <footer className="text-center opacity-30">
+                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Pro • v2.1 • {lastUpdated}</p>
+                    </footer>
                 </div>
-            </div>
-
-            {/* Scrollable Content (Trends + Links) */}
-            <div className="p-6 pt-0 space-y-6">
-                <div className="grid grid-cols-1 gap-4">
-                    {/* Interactive Trend Chart */}
-                    <div className="w-full bg-white/5 rounded-2xl border border-white/10 p-4 pb-0 overflow-hidden relative min-h-[240px]">
-                        {history.length > 0 ? (
-                            <InteractiveChart data={history} />
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-[240px] gap-2 text-slate-500 animate-pulse">
-                                <TrendingUp className="w-8 h-8 opacity-50" />
-                                <span className="text-xs font-medium">Loading History...</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* External Links */}
-                <div className="flex gap-3">
-                    <button onClick={() => window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
-                        <Globe className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                        <span className="text-xs font-black uppercase tracking-widest text-slate-300">SuperRich 官網</span>
-                    </button>
-                    <button onClick={() => window.open('https://rate.bot.com.tw/xrt?Lang=zh-TW', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
-                        <Landmark className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                        <span className="text-xs font-black uppercase tracking-widest text-slate-300">台銀牌告匯率</span>
-                    </button>
-                </div>
-
-                <footer className="mt-12 text-center pb-8 opacity-40">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity 頂級匯率分析系統 • v2.1</p>
-                </footer>
             </div>
 
             <style>{`
@@ -266,19 +263,9 @@ function App() {
                     -webkit-backdrop-filter: blur(20px);
                     border: 1px solid rgba(255, 255, 255, 0.07);
                 }
-                .animate-shake {
-                    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-                }
-                @keyframes shake {
-                    10%, 90% { transform: translate3d(-1px, 0, 0); }
-                    20%, 80% { transform: translate3d(2px, 0, 0); }
-                    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-                    40%, 60% { transform: translate3d(4px, 0, 0); }
-                }
-                input::-webkit-outer-spin-button,
-                input::-webkit-inner-spin-button {
-                    -webkit-appearance: none;
-                    margin: 0;
+                @font-face {
+                    font-family: 'Outfit';
+                    src: url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;400;700;900&display=swap');
                 }
             `}</style>
         </div>
