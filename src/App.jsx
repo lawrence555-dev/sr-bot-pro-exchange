@@ -127,23 +127,23 @@ function App() {
     const historyUsd = history.map(h => ({ time: h.time, value: h.srUsd }));
 
     return (
-        <div className="w-full max-w-[440px] mx-auto bg-[#08090C] text-white font-['Outfit'] antialiased overflow-x-hidden">
+        <div className="w-full max-w-[440px] mx-auto bg-[#08090C] text-white font-['Outfit'] antialiased overflow-hidden h-[100dvh]">
             {/* Background Glow */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 blur-[120px] rounded-full"></div>
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full"></div>
             </div>
 
-            <div className="min-h-[100dvh] flex flex-col p-5 pb-2">
+            <div className="h-full flex flex-col p-4 pb-2 relative z-10">
                 {/* Header */}
-                <header className="relative z-10 flex justify-between items-center mb-4 pt-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-transform hover:scale-105 active:scale-95 duration-300">
-                            <Wallet className="text-white w-6 h-6" />
+                <header className="flex justify-between items-center mb-3 pt-2">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.3)] border border-white/5">
+                            <Wallet className="text-white w-5 h-5" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT PRO</h1>
-                            <p className="text-[9px] text-emerald-500/70 font-bold uppercase tracking-[0.1em]">
+                            <h1 className="text-xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 leading-tight">SR-BOT PRO</h1>
+                            <p className="text-[8px] text-emerald-500/70 font-bold uppercase tracking-[0.1em]">
                                 {viewMode === 'rates' ? `即時換匯分析 (${lastUpdated})` : '30 天歷史趨勢監測'}
                             </p>
                         </div>
@@ -160,11 +160,11 @@ function App() {
                     </button>
                 </header>
 
-                <div className="relative z-10 flex-grow flex flex-col gap-2">
+                <div className="flex-grow flex flex-col gap-1.5 overflow-hidden">
                     {/* Pagination Indicator moved above Carousel */}
-                    <div className="flex justify-center gap-2 mb-0.5">
-                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-8 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-1.5 bg-white/20'}`}></div>
-                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-8 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'w-1.5 bg-white/20'}`}></div>
+                    <div className="flex justify-center gap-1.5 mb-0.5">
+                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-6 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-1 bg-white/20'}`}></div>
+                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-6 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'w-1 bg-white/20'}`}></div>
                     </div>
 
                     {/* Responsive Carousel Area - Using flex-grow to fill available space */}
@@ -178,10 +178,10 @@ function App() {
                             <div className={`absolute inset-0 transition-all duration-500 ease-out transform ${viewMode === 'rates' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'}`}>
                                 <div className="flex flex-col gap-2 h-full">
                                     {/* Input Block Nested Inside Slide - Hyper Compact */}
-                                    <div className="glass-morphic p-4 rounded-[1.5rem] border-emerald-500/20 shadow-xl transition-all duration-300">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <DollarSign className="w-3 h-3 text-emerald-400" />
-                                            <label className="text-[9px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
+                                    <div className="glass-morphic p-3.5 rounded-xl border-emerald-500/20 shadow-xl">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <DollarSign className="w-2.5 h-2.5 text-emerald-400" />
+                                            <label className="text-[8px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
                                         </div>
                                         <div className="flex items-center">
                                             <input
@@ -195,7 +195,7 @@ function App() {
                                         </div>
                                     </div>
 
-                                    <div className={`flex-grow flex flex-col p-5 rounded-[1.5rem] border shadow-xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
+                                    <div className={`flex-grow flex flex-col p-4 rounded-xl border shadow-xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
                                         <div className="flex items-center gap-2 mb-2">
                                             <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
                                             <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-80">AI 換匯最佳路徑</span>
@@ -213,24 +213,24 @@ function App() {
                                             </p>
                                         </div>
 
-                                        {/* Restored: Detailed Comparison Block (鄉間區塊) */}
-                                        <div className="mt-4 grid grid-cols-2 gap-3">
-                                            <div className={`p-3 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
-                                                <p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">台幣直換</p>
-                                                <p className={`text-base font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
+                                        {/* Detailed Comparison Block (鄉間區塊) */}
+                                        <div className="mt-3 grid grid-cols-2 gap-2">
+                                            <div className={`p-2.5 rounded-xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
+                                                <p className="text-[8px] font-black text-slate-500 uppercase mb-0.5">台幣直換</p>
+                                                <p className={`text-sm font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
                                             </div>
-                                            <div className={`p-3 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
-                                                <p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">美金中轉</p>
-                                                <p className={`text-base font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
+                                            <div className={`p-2.5 rounded-xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
+                                                <p className="text-[8px] font-black text-slate-500 uppercase mb-0.5">美金中轉</p>
+                                                <p className={`text-sm font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
                                             </div>
                                         </div>
 
-                                        {/* Restored: Analysis Text */}
-                                        <div className="mt-4 p-3 glass-morphic rounded-2xl border-white/5 flex items-start gap-3">
-                                            <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
-                                                <TrendingUp className={`w-3.5 h-3.5 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
+                                        {/* Analysis Text */}
+                                        <div className="mt-3 p-2.5 glass-morphic rounded-xl border-white/5 flex items-start gap-2.5">
+                                            <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
+                                                <TrendingUp className={`w-3 h-3 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
                                             </div>
-                                            <p className="text-[11px] text-slate-300 leading-snug font-bold">
+                                            <p className="text-[10px] text-slate-300 leading-tight font-bold">
                                                 {results.isAWinner
                                                     ? `【台幣直換】領更多！比美金中轉多獲得 ฿ ${results.diff.toLocaleString()}。推薦直奔 SuperRich。`
                                                     : `【美金中轉】更划算！比台幣直換多獲得 ฿ ${results.diff.toLocaleString()}。推薦先換美金。`
@@ -271,25 +271,25 @@ function App() {
                 </div>
 
                 {/* Bottom Info / Links - Optimized for compact view */}
-                <div className="mt-4 space-y-3 pb-4">
-                    <div className="grid grid-cols-2 gap-3">
+                <div className="mt-3 space-y-2 pb-2">
+                    <div className="grid grid-cols-2 gap-2">
                         <button
                             onClick={() => window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank')}
-                            className="glass-morphic p-4 rounded-2xl border-white/5 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform"
+                            className="glass-morphic p-3 rounded-xl border-white/5 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-transform"
                         >
-                            <Globe className="w-5 h-5 text-emerald-400" />
-                            <span className="text-[9px] font-black uppercase tracking-tighter text-slate-400">SuperRich 官網</span>
+                            <Globe className="w-4 h-4 text-emerald-400" />
+                            <span className="text-[8px] font-black uppercase tracking-tighter text-slate-400">SuperRich 官網</span>
                         </button>
                         <button
                             onClick={() => window.open('https://rate.bot.com.tw/xrt?Lang=zh-TW', '_blank')}
-                            className="glass-morphic p-4 rounded-2xl border-white/5 flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform"
+                            className="glass-morphic p-3 rounded-xl border-white/5 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-transform"
                         >
-                            <Library className="w-5 h-5 text-blue-400" />
-                            <span className="text-[9px] font-black uppercase tracking-tighter text-slate-400">台銀行牌告匯率</span>
+                            <Library className="w-4 h-4 text-blue-400" />
+                            <span className="text-[8px] font-black uppercase tracking-tighter text-slate-400">台銀行牌告匯率</span>
                         </button>
                     </div>
-                    <footer className="text-center opacity-30">
-                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Pro • {lastUpdated}</p>
+                    <footer className="text-center opacity-30 mt-1">
+                        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Pro • {lastUpdated}</p>
                     </footer>
                 </div>
             </div>
