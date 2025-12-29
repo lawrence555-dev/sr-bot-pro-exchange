@@ -246,12 +246,12 @@ function App() {
 
                             {/* Card B: Interactive Chart */}
                             <div className={`absolute inset-0 transition-all duration-500 ease-out transform ${viewMode === 'chart' ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'}`}>
-                                <div className="h-full flex flex-col p-6 rounded-[2.5rem] border border-blue-500/20 shadow-2xl glass-morphic">
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <TrendingUp className="w-5 h-5 text-blue-400" />
-                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">30 天歷史匯率動態分析</span>
+                                <div className="h-full flex flex-col p-5 rounded-xl border border-blue-500/20 shadow-xl glass-morphic">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <TrendingUp className="w-4 h-4 text-blue-400" />
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">30 天歷史匯率動態分析</span>
                                     </div>
-                                    <div className="flex-grow flex items-center justify-center min-h-[300px]">
+                                    <div className="flex-grow flex items-center justify-center min-h-0">
                                         {history.length > 0 ? (
                                             <InteractiveChart data={history} />
                                         ) : (
@@ -261,7 +261,7 @@ function App() {
                                             </div>
                                         )}
                                     </div>
-                                    <p className="mt-auto pt-4 text-[10px] text-slate-500 text-center font-bold tracking-widest">
+                                    <p className="mt-auto pt-2 text-[10px] text-slate-500 text-center font-bold tracking-widest">
                                         ← 向右滑動 返回即時分析
                                     </p>
                                 </div>
