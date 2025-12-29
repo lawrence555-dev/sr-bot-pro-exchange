@@ -153,11 +153,11 @@ function App() {
                     </button>
                 </header>
 
-                <div className="relative z-10 flex-grow flex flex-col gap-5">
+                <div className="relative z-10 flex-grow flex flex-col gap-3">
                     {/* Pagination Indicator moved above Carousel */}
-                    <div className="flex justify-center gap-2 mb-2">
-                        <div className={`h-1.5 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-8 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-1.5 bg-white/20'}`}></div>
-                        <div className={`h-1.5 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-8 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'w-1.5 bg-white/20'}`}></div>
+                    <div className="flex justify-center gap-2 mb-1">
+                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-8 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-1.5 bg-white/20'}`}></div>
+                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-8 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'w-1.5 bg-white/20'}`}></div>
                     </div>
 
                     {/* Responsive Carousel Area */}
@@ -166,29 +166,29 @@ function App() {
                         onTouchStart={onTouchStart}
                         onTouchEnd={onTouchEnd}
                     >
-                        <div className="relative w-full h-full overflow-hidden min-h-[600px]">
+                        <div className="relative w-full h-full overflow-hidden min-h-[580px]">
                             {/* Card A: Detailed Rates & Strategy */}
                             <div className={`absolute inset-0 transition-all duration-500 ease-out transform ${viewMode === 'rates' ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'}`}>
-                                <div className="flex flex-col gap-5 h-full pb-1">
-                                    {/* Input Block Nested Inside Slide */}
-                                    <div className="glass-morphic p-7 rounded-[2.5rem] border-emerald-500/20 shadow-2xl transition-all duration-300 hover:border-emerald-500/40">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <DollarSign className="w-4 h-4 text-emerald-400" />
-                                            <label className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
+                                <div className="flex flex-col gap-3 h-full pb-1">
+                                    {/* Input Block Nested Inside Slide - More Compact */}
+                                    <div className="glass-morphic p-5 rounded-[2rem] border-emerald-500/20 shadow-2xl transition-all duration-300 hover:border-emerald-500/40">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <DollarSign className="w-3 h-3 text-emerald-400" />
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400/80">台幣換匯預算 (TWD)</label>
                                         </div>
                                         <div className="flex items-center">
                                             <input
                                                 type="number"
                                                 value={twdAmount}
                                                 onChange={(e) => setTwdAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                                className="text-5xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter"
+                                                className="text-4xl font-black bg-transparent border-none focus:outline-none text-white w-full tracking-tighter"
                                                 placeholder="0"
                                             />
-                                            <span className="text-emerald-500 font-black text-2xl ml-2 uppercase">Twd</span>
+                                            <span className="text-emerald-500 font-black text-xl ml-2 uppercase">Twd</span>
                                         </div>
                                     </div>
 
-                                    <div className={`flex-grow flex flex-col p-7 rounded-[2.5rem] border shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
+                                    <div className={`flex-grow flex flex-col p-6 rounded-[2rem] border shadow-2xl glass-morphic ${results.isAWinner ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-blue-500/40 bg-blue-500/5'}`}>
                                         <div className="flex items-center gap-2 mb-2">
                                             <Zap className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
                                             <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest opacity-80">AI 換匯最佳路徑</span>
@@ -207,26 +207,26 @@ function App() {
                                         </div>
 
                                         {/* Restored: Detailed Comparison Block (鄉間區塊) */}
-                                        <div className="mt-6 grid grid-cols-2 gap-4">
-                                            <div className={`p-4 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
-                                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">台幣直換</p>
-                                                <p className={`text-lg font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
+                                        <div className="mt-4 grid grid-cols-2 gap-3">
+                                            <div className={`p-3 rounded-2xl border transition-all duration-300 ${results.isAWinner ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
+                                                <p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">台幣直換</p>
+                                                <p className={`text-base font-black ${results.isAWinner ? 'text-emerald-400' : 'text-slate-400'}`}>฿ {results.totalA.toLocaleString()}</p>
                                             </div>
-                                            <div className={`p-4 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
-                                                <p className="text-[10px] font-black text-slate-500 uppercase mb-1">美金中轉</p>
-                                                <p className={`text-lg font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
+                                            <div className={`p-3 rounded-2xl border transition-all duration-300 ${!results.isAWinner ? 'bg-blue-500/10 border-blue-500/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
+                                                <p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">美金中轉</p>
+                                                <p className={`text-base font-black ${!results.isAWinner ? 'text-blue-400' : 'text-slate-400'}`}>฿ {results.totalB.toLocaleString()}</p>
                                             </div>
                                         </div>
 
                                         {/* Restored: Analysis Text */}
-                                        <div className="mt-6 p-4 glass-morphic rounded-2xl border-white/5 flex items-start gap-4">
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
-                                                <TrendingUp className={`w-4 h-4 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
+                                        <div className="mt-4 p-3 glass-morphic rounded-2xl border-white/5 flex items-start gap-3">
+                                            <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${results.isAWinner ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
+                                                <TrendingUp className={`w-3.5 h-3.5 ${results.isAWinner ? 'text-emerald-400' : 'text-blue-400'}`} />
                                             </div>
-                                            <p className="text-xs text-slate-300 leading-relaxed font-bold">
+                                            <p className="text-[11px] text-slate-300 leading-snug font-bold">
                                                 {results.isAWinner
-                                                    ? `【台幣直換】領更多！相同預算下，比起美金中轉可多獲得 ฿ ${results.diff.toLocaleString()}。推薦直接前往 SuperRich。`
-                                                    : `【美金中轉】更划算！相同預算下，比起台幣直換可多獲得 ฿ ${results.diff.toLocaleString()}。推薦先在台換美金再到泰國。`
+                                                    ? `【台幣直換】領更多！比美金中轉多獲得 ฿ ${results.diff.toLocaleString()}。推薦直奔 SuperRich。`
+                                                    : `【美金中轉】更划算！比台幣直換多獲得 ฿ ${results.diff.toLocaleString()}。推薦先換美金。`
                                                 }
                                             </p>
                                         </div>
