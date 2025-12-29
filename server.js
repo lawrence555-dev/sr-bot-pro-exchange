@@ -16,7 +16,17 @@ const PORT = process.env.PORT || 3000;
 if (process.env.MONGODB_URI) {
     mongoose.connect(process.env.MONGODB_URI)
         .then(() => console.log('MongoDB Connected Successfully'))
-        .catch(err => console.error('MongoDB Connection Failed:', err));
+        .catch(err => {
+            console.error('MongoDB Connection Failed:', err.message);
+            if (err.code === 18) {
+                console.error('================================================');
+                console.error('[HINT] Authentication Failed (Code 18).');
+                console.error('1. Check if your Username/Password is correct.');
+                console.error('2. IMPORTANT: If your password contains special characters (@, :, /, #), they MUST be URL Encoded.');
+                console.error('   Example: "@" -> "%40", ":" -> "%3A"');
+                console.error('================================================');
+            }
+        });
 } else {
     console.warn('MONGODB_URI not found in env, skipping DB connection');
 }
