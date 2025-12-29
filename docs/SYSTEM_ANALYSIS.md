@@ -15,29 +15,33 @@ graph TD
         Express -->|GET /api/rates| RatesAPI["Rates API"]
         Express -->|GET /api/history| HistoryAPI["History API"]
         
+        Express -->|Daily Seed/Init| SeedLogic["Seed & Recovery Logic"]
         Scheduler["node-cron Scheduler"] -->|Trigger 23:50| ScraperService
         
-        subgraph "Core Logic"
+        subgraph "Core Components"
             ScraperService["Scraper Service"] 
             RatesAPI
             HistoryAPI
-        end
-        
-        ScraperService -->|Fetch| BOT["Bank of Taiwan (CSV)"]
-        ScraperService -->|Fetch| SR["SuperRich Thailand (HTML)"]
+            SeedLogic
     end
     
-    subgraph "Persistent Storage"
-        Volume["Zeabur Volume (/app/data)"]
+    subgraph "Persistent Storage (Zeabur Volume)"
+        Volume["/app/data"]
         HistoryFile[history.json]
+        Volume --- HistoryFile
     end
     
-    ScraperService -->|Upsert| HistoryFile
+    %% Flows
+    ScraperService -->|Fetch| ExternalBanks["BOT (Bank) & SR (Exchange)"]
+    ScraperService -->|Daily Upsert| HistoryFile
+    SeedLogic -->|Boot Fill| HistoryFile
     RatesAPI -->|Read| HistoryFile
     HistoryAPI -->|Read| HistoryFile
-    StaticFE -->|Render| Recharts["Interactive Chart (Recharts)"]
-    Recharts -.->|Fetch| HistoryAPI
-    Volume --- HistoryFile
+    
+    StaticFE -->|Render| Carousel["Swipeable Carousel (App.jsx)"]
+    Carousel -->|Page 1| StrategyCard["AI Strategy Card"]
+    Carousel -->|Page 2| Recharts["Interactive Chart (Recharts)"]
+    Recharts -.->|Fetch Data| HistoryAPI
 ```
 
 ## 2. 資料流流程圖 (Data Flow)

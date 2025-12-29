@@ -20,6 +20,23 @@
 - **Scheduling**: node-cron (時區校正: Asia/Taipei)
 - **Data Store**: JSON File Store (Designed for Volume Mounting)
 
+## 🏗️ 系統架構 (System Architecture)
+
+```mermaid
+graph TD
+    User((使用者 / iPhone)) -->|Swipe/Refresh| App[React App v2.2]
+    App -->|GET /api/rates| Express[Express Server]
+    App -->|GET /api/history| Express
+    Express -->|Read/Write| DB[(/app/data/history.json)]
+    
+    subgraph "Automation & Continuity"
+        Express -->|In-Process Scheduler| Scraper[Playwright Scraper]
+        Express -->|Startup Seed| DB
+    end
+    
+    Scraper -->|Daily Upsert| DB
+```
+
 ## 🌐 雲端部署 (Zeabur)
 
 本專案已完全針對 **Zeabur** 平台優化：
