@@ -157,10 +157,112 @@ app.get('/api/history', (req, res) => {
     }
 });
 
-// 4. Serve static files from the Vite build output
+// 5. Generate Trend Chart (QuickChart)
+import QuickChart from 'quickchart-js';
+
+app.get('/api/trend-chart', async (req, res) => {
+    try {
+        if (!fs.existsSync(HISTORY_PATH)) {
+            return res.status(404).json({ error: 'No history data available' });
+        }
+
+        // 1. Read and Process Data
+        let history = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'));
+        if (!Array.isArray(history) || history.length === 0) {
+            return res.status(404).json({ error: 'History data is empty' });
+        }
+
+        // Sort by Date (Old -> New) for Chart X-Axis
+        history.sort((a, b) => new Date(a.recordTime) - new Date(b.recordTime));
+
+        // Take last 30 days
+        if (history.length > 30) history = history.slice(-30);
+
+        // Prepare Datasets
+        const labels = history.map(h => {
+            const d = new Date(h.recordTime);
+            return `${d.getMonth() + 1}/${d.getDate()}`; // MM/DD
+        });
+
+        const dataDirect = history.map(h => h.srTwd); // 1 TWD = ? THB
+        const dataCross = history.map(h => h.srUsd / h.botUsd); // 1 TWD = (1 USD_THB / 1 USD_TWD)
+
+        // 2. Configure QuickChart
+        const chart = new QuickChart();
+        chart.setWidth(800);
+        chart.setHeight(400);
+        chart.setBackgroundColor('transparent');
+
+        chart.setConfig({
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '台幣直換 (TWD Direct)',
+                        data: dataDirect,
+                        borderColor: 'rgb(54, 162, 235)', // Blue
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        fill: false,
+                        pointRadius: 0, // Hide points
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: '美金中轉 (USD Cross)',
+                        data: dataCross,
+                        borderColor: 'rgb(255, 159, 64)', // Orange
+                        borderDash: [5, 5], // Dashed line
+                        fill: false,
+                        pointRadius: 0, // Hide points
+                        borderWidth: 2,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: true,
+                    text: '30-Day Trend: TWD vs USD Cross (1 TWD = ? THB)',
+                    fontColor: '#94a3b8'
+                },
+                legend: {
+                    labels: {
+                        fontColor: '#cbd5e1'
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        ticks: { fontColor: '#94a3b8' },
+                        gridLines: { display: false }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            fontColor: '#94a3b8',
+                            beginAtZero: false // Auto scale to show details
+                        },
+                        gridLines: { color: 'rgba(148, 163, 184, 0.1)' }
+                    }]
+                }
+            }
+        });
+
+        // 3. Return Image URL
+        const chartUrl = chart.getUrl();
+        res.json({ url: chartUrl });
+
+    } catch (error) {
+        console.error('Chart generation failed:', error.message);
+        res.status(500).json({ error: 'Chart generation failed', details: error.message });
+    }
+});
+
+// 6. Serve static files from the Vite build output (Incremented index)
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// 5. Fallback to index.html for SPA routing (MUST BE LAST)
+// 7. Fallback to index.html for SPA routing (MUST BE LAST)
 app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
