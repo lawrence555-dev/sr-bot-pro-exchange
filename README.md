@@ -6,7 +6,7 @@
 
 ## ✨ v2.1 核心更新
 
-- **📊 30 天趨勢圖表**：後端即時生成「台幣直換」vs「美金中轉」的走勢比較圖 (`/api/trend-chart`)。
+- **📊 30 天互動趨勢圖表**：使用 `Recharts` 繪製「台幣直換」vs「美金中轉」的走勢比較，支援手指滑動顯示詳細數值。
 - **💾 資料持久化 (Persistent Storage)**：支援 Zeabur Volume 掛載，確保歷史匯率在重新部署後依然保存。
 - **⏰ 自動化排程**：內建 `node-cron`，每日台灣時間 23:50 自動抓取並存檔。
 - **🧹 智慧資料管理**：自動去重複 (每日一筆) 並滾動刪除超過 30 天的舊資料。
@@ -16,7 +16,7 @@
 
 - **Backend**: Node.js, Express
 - **Scraping**: Playwright (Headless Browser) + Axios
-- **Visualization**: QuickChart.js (後端繪圖)
+- **Visualization**: Recharts (前端互動繪圖)
 - **Scheduling**: node-cron (時區校正: Asia/Taipei)
 - **Data Store**: JSON File Store (Designed for Volume Mounting)
 
@@ -41,8 +41,7 @@
 | Endpoint | Method | 描述 |
 |----------|--------|------|
 | `/api/rates` | GET | 取得最新一筆匯率資料 |
-| `/api/history` | GET | 取得最近 30 天的歷史匯率列表 |
-| `/api/trend-chart` | GET | 取得 30 天趨勢圖表的圖片網址 (JSON: `{url: ...}`) |
+| `/api/history` | GET | 取得最近 30 天的歷史匯率列表 (供圖表使用) |
 | `/api/scrape` | GET | 手動觸發爬蟲 (並更新當日資料) |
 | `/api/health` | GET | 伺服器健康檢查 |
 

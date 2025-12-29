@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Landmark, RefreshCw, Loader2, Info, Globe, TrendingUp, DollarSign, Wallet } from 'lucide-react';
-import TrendChart from './components/TrendChart';
+import InteractiveChart from './components/InteractiveChart';
 
 function App() {
     const [twdAmount, setTwdAmount] = useState(50000);
@@ -66,6 +66,9 @@ function App() {
             if (historyRes.ok) {
                 const historyData = await historyRes.json();
                 setHistory(historyData);
+            }
+            if (!loading) { // Avoid overlapping state updates from recursion
+                setTimeout(() => setLoading(false), forceScrape ? 1000 : 500);
             }
         } catch (err) {
             console.error('Fetch error:', err);
@@ -226,8 +229,18 @@ function App() {
             {/* Scrollable Content (Trends + Links) */}
             <div className="p-6 pt-0 space-y-6">
                 <div className="grid grid-cols-1 gap-4">
-                    <TrendChart data={historyTwd} color="#10B981" label="SuperRich 台幣基準趨勢" />
-                    <TrendChart data={historyUsd} color="#3B82F6" label="SuperRich 美金基準趨勢" />
+                    {/* Trend Chart Image from Server */}
+                    {/* Interactive Trend Chart */}
+                    <div className="w-full bg-white/5 rounded-2xl border border-white/10 p-4 pb-0 overflow-hidden relative min-h-[240px]">
+                        {history.length > 0 ? (
+                            <InteractiveChart data={history} />
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-[240px] gap-2 text-slate-500 animate-pulse">
+                                <TrendingUp className="w-8 h-8 opacity-50" />
+                                <span className="text-xs font-medium">Loading History...</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* External Links */}

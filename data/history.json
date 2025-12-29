@@ -1,242 +1,212 @@
 [
   {
     "dateStr": "2025-11-30",
-    "recordTime": "2025-11-30T15:50:00.647Z",
-    "lastUpdated": "2025/11/30 下午11:50:00",
-    "botUsd": 32.415,
-    "srTwd": 0.983,
-    "srUsd": 33.85
+    "recordTime": "2025-11-30T06:37:52.915Z",
+    "srTwd": 1.001,
+    "botUsd": 31.63,
+    "srUsd": 31.52
   },
   {
     "dateStr": "2025-12-01",
-    "recordTime": "2025-12-01T15:50:00.647Z",
-    "lastUpdated": "2025/12/1 下午11:50:00",
-    "botUsd": 32.437,
-    "srTwd": 0.983,
-    "srUsd": 33.91
+    "recordTime": "2025-12-01T06:37:52.915Z",
+    "srTwd": 0.994,
+    "botUsd": 31.78,
+    "srUsd": 31.3
   },
   {
     "dateStr": "2025-12-02",
-    "recordTime": "2025-12-02T15:50:00.647Z",
-    "lastUpdated": "2025/12/2 下午11:50:00",
-    "botUsd": 32.451,
-    "srTwd": 0.985,
-    "srUsd": 33.92
+    "recordTime": "2025-12-02T06:37:52.915Z",
+    "srTwd": 0.999,
+    "botUsd": 31.6,
+    "srUsd": 31.29
   },
   {
     "dateStr": "2025-12-03",
-    "recordTime": "2025-12-03T15:50:00.647Z",
-    "lastUpdated": "2025/12/3 下午11:50:00",
-    "botUsd": 32.448,
-    "srTwd": 0.989,
-    "srUsd": 33.9
+    "recordTime": "2025-12-03T06:37:52.915Z",
+    "srTwd": 0.984,
+    "botUsd": 31.59,
+    "srUsd": 31.4
   },
   {
     "dateStr": "2025-12-04",
-    "recordTime": "2025-12-04T15:50:00.647Z",
-    "lastUpdated": "2025/12/4 下午11:50:00",
-    "botUsd": 32.486,
-    "srTwd": 0.985,
-    "srUsd": 33.85
+    "recordTime": "2025-12-04T06:37:52.915Z",
+    "srTwd": 1.014,
+    "botUsd": 31.76,
+    "srUsd": 31.56
   },
   {
     "dateStr": "2025-12-05",
-    "recordTime": "2025-12-05T15:50:00.647Z",
-    "lastUpdated": "2025/12/5 下午11:50:00",
-    "botUsd": 32.469,
-    "srTwd": 0.981,
-    "srUsd": 33.79
+    "recordTime": "2025-12-05T06:37:52.915Z",
+    "srTwd": 0.99,
+    "botUsd": 31.99,
+    "srUsd": 31.7
   },
   {
     "dateStr": "2025-12-06",
-    "recordTime": "2025-12-06T15:50:00.647Z",
-    "lastUpdated": "2025/12/6 下午11:50:00",
-    "botUsd": 32.434,
-    "srTwd": 0.98,
-    "srUsd": 33.72
+    "recordTime": "2025-12-06T06:37:52.915Z",
+    "srTwd": 0.997,
+    "botUsd": 31.77,
+    "srUsd": 31.28
   },
   {
     "dateStr": "2025-12-07",
-    "recordTime": "2025-12-07T15:50:00.647Z",
-    "lastUpdated": "2025/12/7 下午11:50:00",
-    "botUsd": 32.408,
-    "srTwd": 0.978,
-    "srUsd": 33.74
+    "recordTime": "2025-12-07T06:37:52.915Z",
+    "srTwd": 1.004,
+    "botUsd": 31.55,
+    "srUsd": 31.25
   },
   {
     "dateStr": "2025-12-08",
-    "recordTime": "2025-12-08T15:50:00.647Z",
-    "lastUpdated": "2025/12/8 下午11:50:00",
-    "botUsd": 32.402,
-    "srTwd": 0.983,
-    "srUsd": 33.69
+    "recordTime": "2025-12-08T06:37:52.915Z",
+    "srTwd": 1.001,
+    "botUsd": 31.97,
+    "srUsd": 31.6
   },
   {
     "dateStr": "2025-12-09",
-    "recordTime": "2025-12-09T15:50:00.647Z",
-    "lastUpdated": "2025/12/9 下午11:50:00",
-    "botUsd": 32.422,
-    "srTwd": 0.978,
-    "srUsd": 33.76
+    "recordTime": "2025-12-09T06:37:52.915Z",
+    "srTwd": 0.984,
+    "botUsd": 31.91,
+    "srUsd": 31.68
   },
   {
     "dateStr": "2025-12-10",
-    "recordTime": "2025-12-10T15:50:00.647Z",
-    "lastUpdated": "2025/12/10 下午11:50:00",
-    "botUsd": 32.436,
-    "srTwd": 0.975,
-    "srUsd": 33.7
+    "recordTime": "2025-12-10T06:37:52.915Z",
+    "srTwd": 0.997,
+    "botUsd": 31.72,
+    "srUsd": 31.56
   },
   {
     "dateStr": "2025-12-11",
-    "recordTime": "2025-12-11T15:50:00.647Z",
-    "lastUpdated": "2025/12/11 下午11:50:00",
-    "botUsd": 32.399,
-    "srTwd": 0.978,
-    "srUsd": 33.77
+    "recordTime": "2025-12-11T06:37:52.915Z",
+    "srTwd": 0.997,
+    "botUsd": 31.94,
+    "srUsd": 31.38
   },
   {
     "dateStr": "2025-12-12",
-    "recordTime": "2025-12-12T15:50:00.647Z",
-    "lastUpdated": "2025/12/12 下午11:50:00",
-    "botUsd": 32.351,
-    "srTwd": 0.975,
-    "srUsd": 33.76
+    "recordTime": "2025-12-12T06:37:52.915Z",
+    "srTwd": 0.99,
+    "botUsd": 31.7,
+    "srUsd": 31.27
   },
   {
     "dateStr": "2025-12-13",
-    "recordTime": "2025-12-13T15:50:00.647Z",
-    "lastUpdated": "2025/12/13 下午11:50:00",
-    "botUsd": 32.358,
-    "srTwd": 0.971,
-    "srUsd": 33.71
+    "recordTime": "2025-12-13T06:37:52.915Z",
+    "srTwd": 0.994,
+    "botUsd": 31.9,
+    "srUsd": 31.62
   },
   {
     "dateStr": "2025-12-14",
-    "recordTime": "2025-12-14T15:50:00.647Z",
-    "lastUpdated": "2025/12/14 下午11:50:00",
-    "botUsd": 32.345,
-    "srTwd": 0.967,
-    "srUsd": 33.64
+    "recordTime": "2025-12-14T06:37:52.915Z",
+    "srTwd": 0.991,
+    "botUsd": 31.73,
+    "srUsd": 31.24
   },
   {
     "dateStr": "2025-12-15",
-    "recordTime": "2025-12-15T15:50:00.647Z",
-    "lastUpdated": "2025/12/15 下午11:50:00",
-    "botUsd": 32.37,
-    "srTwd": 0.97,
-    "srUsd": 33.62
+    "recordTime": "2025-12-15T06:37:52.915Z",
+    "srTwd": 0.989,
+    "botUsd": 31.69,
+    "srUsd": 31.37
   },
   {
     "dateStr": "2025-12-16",
-    "recordTime": "2025-12-16T15:50:00.647Z",
-    "lastUpdated": "2025/12/16 下午11:50:00",
-    "botUsd": 32.367,
-    "srTwd": 0.971,
-    "srUsd": 33.62
+    "recordTime": "2025-12-16T06:37:52.915Z",
+    "srTwd": 1.003,
+    "botUsd": 31.51,
+    "srUsd": 31.45
   },
   {
     "dateStr": "2025-12-17",
-    "recordTime": "2025-12-17T15:50:00.647Z",
-    "lastUpdated": "2025/12/17 下午11:50:00",
-    "botUsd": 32.347,
-    "srTwd": 0.973,
-    "srUsd": 33.64
+    "recordTime": "2025-12-17T06:37:52.915Z",
+    "srTwd": 0.981,
+    "botUsd": 32,
+    "srUsd": 31.58
   },
   {
     "dateStr": "2025-12-18",
-    "recordTime": "2025-12-18T15:50:00.647Z",
-    "lastUpdated": "2025/12/18 下午11:50:00",
-    "botUsd": 32.337,
-    "srTwd": 0.975,
-    "srUsd": 33.64
+    "recordTime": "2025-12-18T06:37:52.915Z",
+    "srTwd": 1.001,
+    "botUsd": 31.71,
+    "srUsd": 31.3
   },
   {
     "dateStr": "2025-12-19",
-    "recordTime": "2025-12-19T15:50:00.647Z",
-    "lastUpdated": "2025/12/19 下午11:50:00",
-    "botUsd": 32.294,
-    "srTwd": 0.976,
-    "srUsd": 33.65
+    "recordTime": "2025-12-19T06:37:52.915Z",
+    "srTwd": 0.999,
+    "botUsd": 31.94,
+    "srUsd": 31.58
   },
   {
     "dateStr": "2025-12-20",
-    "recordTime": "2025-12-20T15:50:00.647Z",
-    "lastUpdated": "2025/12/20 下午11:50:00",
-    "botUsd": 32.322,
-    "srTwd": 0.974,
-    "srUsd": 33.72
+    "recordTime": "2025-12-20T06:37:52.915Z",
+    "srTwd": 1,
+    "botUsd": 31.66,
+    "srUsd": 31.29
   },
   {
     "dateStr": "2025-12-21",
-    "recordTime": "2025-12-21T15:50:00.647Z",
-    "lastUpdated": "2025/12/21 下午11:50:00",
-    "botUsd": 32.333,
-    "srTwd": 0.975,
-    "srUsd": 33.72
+    "recordTime": "2025-12-21T06:37:52.915Z",
+    "srTwd": 1.012,
+    "botUsd": 31.99,
+    "srUsd": 31.47
   },
   {
     "dateStr": "2025-12-22",
-    "recordTime": "2025-12-22T15:50:00.647Z",
-    "lastUpdated": "2025/12/22 下午11:50:00",
-    "botUsd": 32.322,
-    "srTwd": 0.971,
-    "srUsd": 33.67
+    "recordTime": "2025-12-22T06:37:52.915Z",
+    "srTwd": 0.997,
+    "botUsd": 31.79,
+    "srUsd": 31.38
   },
   {
     "dateStr": "2025-12-23",
-    "recordTime": "2025-12-23T15:50:00.647Z",
-    "lastUpdated": "2025/12/23 下午11:50:00",
-    "botUsd": 32.336,
-    "srTwd": 0.967,
-    "srUsd": 33.68
+    "recordTime": "2025-12-23T06:37:52.915Z",
+    "srTwd": 1.003,
+    "botUsd": 31.62,
+    "srUsd": 31.45
   },
   {
     "dateStr": "2025-12-24",
-    "recordTime": "2025-12-24T15:50:00.647Z",
-    "lastUpdated": "2025/12/24 下午11:50:00",
-    "botUsd": 32.305,
-    "srTwd": 0.963,
-    "srUsd": 33.71
+    "recordTime": "2025-12-24T06:37:52.915Z",
+    "srTwd": 1.01,
+    "botUsd": 31.97,
+    "srUsd": 31.49
   },
   {
     "dateStr": "2025-12-25",
-    "recordTime": "2025-12-25T15:50:00.647Z",
-    "lastUpdated": "2025/12/25 下午11:50:00",
-    "botUsd": 32.264,
-    "srTwd": 0.961,
-    "srUsd": 33.76
+    "recordTime": "2025-12-25T06:37:52.915Z",
+    "srTwd": 1.01,
+    "botUsd": 31.74,
+    "srUsd": 31.47
   },
   {
     "dateStr": "2025-12-26",
-    "recordTime": "2025-12-26T15:50:00.647Z",
-    "lastUpdated": "2025/12/26 下午11:50:00",
-    "botUsd": 32.264,
-    "srTwd": 0.961,
-    "srUsd": 33.7
+    "recordTime": "2025-12-26T06:37:52.915Z",
+    "srTwd": 1.011,
+    "botUsd": 31.94,
+    "srUsd": 31.38
   },
   {
     "dateStr": "2025-12-27",
-    "recordTime": "2025-12-27T15:50:00.647Z",
-    "lastUpdated": "2025/12/27 下午11:50:00",
-    "botUsd": 32.221,
-    "srTwd": 0.964,
-    "srUsd": 33.65
+    "recordTime": "2025-12-27T06:37:52.915Z",
+    "srTwd": 1.015,
+    "botUsd": 31.57,
+    "srUsd": 31.48
   },
   {
     "dateStr": "2025-12-28",
-    "recordTime": "2025-12-28T15:50:00.647Z",
-    "lastUpdated": "2025/12/28 下午11:50:00",
-    "botUsd": 32.256,
-    "srTwd": 0.965,
-    "srUsd": 33.6
+    "recordTime": "2025-12-28T06:37:52.915Z",
+    "srTwd": 0.986,
+    "botUsd": 31.64,
+    "srUsd": 31.37
   },
   {
     "dateStr": "2025-12-29",
-    "recordTime": "2025-12-29T15:50:00.647Z",
-    "lastUpdated": "2025/12/29 下午11:50:00",
-    "botUsd": 32.295,
-    "srTwd": 0.962,
-    "srUsd": 33.6
+    "recordTime": "2025-12-29T06:37:52.915Z",
+    "srTwd": 0.99,
+    "botUsd": 31.85,
+    "srUsd": 31.52
   }
 ]

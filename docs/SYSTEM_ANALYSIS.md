@@ -13,14 +13,14 @@ graph TD
         
         Express -->|GET /| StaticFE["Static Frontend (Vite Build)"]
         Express -->|GET /api/rates| RatesAPI["Rates API"]
-        Express -->|GET /api/chart| ChartAPI["Trend Chart API"]
+        Express -->|GET /api/history| HistoryAPI["History API"]
         
         Scheduler["node-cron Scheduler"] -->|Trigger 23:50| ScraperService
         
         subgraph "Core Logic"
             ScraperService["Scraper Service"] 
             RatesAPI
-            ChartAPI
+            HistoryAPI
         end
         
         ScraperService -->|Fetch| BOT["Bank of Taiwan (CSV)"]
@@ -34,7 +34,9 @@ graph TD
     
     ScraperService -->|Upsert| HistoryFile
     RatesAPI -->|Read| HistoryFile
-    ChartAPI -->|Read/Compute| HistoryFile
+    HistoryAPI -->|Read| HistoryFile
+    StaticFE -->|Render| Recharts["Interactive Chart (Recharts)"]
+    Recharts -.->|Fetch| HistoryAPI
     Volume --- HistoryFile
 ```
 
@@ -67,13 +69,12 @@ sequenceDiagram
 
     %% 使用者查詢流程
     Note over API, UI: **使用者查詢流程**
-    UI->>API: 請求趨勢圖表 (/api/trend-chart)
+    UI->>API: 請求歷史數據 (/api/history)
     API->>FS: 讀取 history.json
     FS-->>API: 回傳歷史數據
-    API->>API: 計算 Cross Rate (美金中轉匯率)
-    API->>API: 生成 Chart URL (QuickChart)
-    API-->>UI: 回傳圖表連結
-    UI->>UI: 渲染圖表
+    API-->>UI: 回傳 JSON Array
+    UI->>UI: 前端計算 Cross Rate
+    UI->>UI: 使用 Recharts 繪製互動圖表
 ```
 
 ## 3. 模組功能分析
@@ -91,11 +92,12 @@ sequenceDiagram
     - **每日去重 (Deduplication)**：使用 `dateStr` (YYYY-MM-DD) 作為唯一鍵值，確保同一天多次執行也只會更新同一筆記錄，防止數據膨脹。
     - **自動滾動 (Rolling Retention)**：每次寫入時自動檢查長度，僅保留最近 30 天數據。
 
-### C. 趨勢視覺化 (`/api/trend-chart`)
-- **目的**：解決使用者「這時候換划算嗎？」的決策痛點。
+### C. 趨勢視覺化 (Client-side Rendering)
+- **目的**：提供高度互動的匯率對比，幫助使用者精準判斷換匯時機。
 - **實現**：
-    - 即時計算 **Cross Rate (交叉匯率)**：`srUsd (泰國美金買價) / botUsd (台灣美金賣價)`。
-    - 使用 `QuickChart` 生成靜態圖片，減輕前端渲染負擔，並確保在所有裝置 (包含 Line 預覽) 都能正常顯示。
+    - **技術棧**：使用 `Recharts` 函式庫於前端進行向量繪圖。
+    - **互動性**：支援手指觸控滑動顯示垂直參考線與懸浮數值 (Tooltip)。
+    - **即時計算**：前端直接處理 `srUsd / botUsd` 的交叉匯率邏輯，減輕伺服器運算負擔。
 
 ## 4. 部署環境規格
 
