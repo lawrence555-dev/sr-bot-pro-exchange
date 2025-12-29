@@ -25,6 +25,13 @@ if (process.env.MONGODB_URI) {
     const maskedURI = process.env.MONGODB_URI.replace(/:([^:@]+)@/, ':****@');
     console.log('================================================');
     console.log(`[DEBUG] Attempting to connect to MongoDB with URI: ${maskedURI}`);
+    try {
+        const uriObj = new URL(process.env.MONGODB_URI);
+        console.log(`[DEBUG] Username: ${uriObj.username}`);
+        console.log(`[DEBUG] Password Length: ${uriObj.password.length}`);
+    } catch (e) {
+        console.log(`[DEBUG] Could not parse URI for debugging: ${e.message}`);
+    }
     console.log('================================================');
 
     mongoose.connect(process.env.MONGODB_URI)
