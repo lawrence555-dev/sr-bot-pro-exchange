@@ -224,8 +224,8 @@ function App() {
                                         </div>
                                         <p className="text-xs text-slate-300 leading-relaxed font-bold">
                                             {results.isAWinner
-                                                ? `台幣直換每 $1 萬可多省 ฿ ${Math.floor(results.diff / (twdAmount / 10000) || 0)}。推薦前往 SuperRich 總部。`
-                                                : `美金中轉目前展現優勢，估計可多領 ฿ ${results.diff.toLocaleString()}。推薦先換美金。`
+                                                ? `【台幣直換】領更多！相同預算下，比起美金中轉可多獲得 ฿ ${results.diff.toLocaleString()}。推薦直接前往 SuperRich。`
+                                                : `【美金中轉】更划算！相同預算下，比起台幣直換可多獲得 ฿ ${results.diff.toLocaleString()}。推薦先在台換美金再到泰國。`
                                             }
                                         </p>
                                     </div>
