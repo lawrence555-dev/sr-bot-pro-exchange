@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Landmark, RefreshCw, Loader2, Info, Globe, TrendingUp, DollarSign, Wallet } from 'lucide-react';
+import { Zap, Landmark, Library, RefreshCw, Loader2, Info, Globe, TrendingUp, DollarSign, Wallet } from 'lucide-react';
 import InteractiveChart from './components/InteractiveChart';
 
 function App() {
@@ -84,6 +84,13 @@ function App() {
 
     useEffect(() => {
         updateRates();
+
+        // Remove splash screen after app mounts
+        const splash = document.getElementById('splash-screen');
+        if (splash) {
+            splash.style.opacity = '0';
+            setTimeout(() => splash.remove(), 500);
+        }
     }, []);
 
     const handleSwipe = (direction) => {
