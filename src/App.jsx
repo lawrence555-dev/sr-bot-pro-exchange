@@ -136,8 +136,8 @@ function App() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SR-BOT PRO</h1>
-                            <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-[0.2em]">
-                                {viewMode === 'rates' ? '即時換匯分析' : '30 天趨勢監測'}
+                            <p className="text-[9px] text-emerald-500/70 font-bold uppercase tracking-[0.1em]">
+                                {viewMode === 'rates' ? `即時換匯分析 (${lastUpdated})` : '30 天歷史趨勢監測'}
                             </p>
                         </div>
                     </div>
@@ -264,13 +264,13 @@ function App() {
                 {/* Bottom Info / Links */}
                 <div className="mt-8 space-y-6 pb-8">
                     <div className="flex gap-3">
-                        <button onClick={() => window.open('https://www.superrichthailand.com', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-2 group">
+                        <button onClick={() => window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-2 group">
                             <Globe className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                            <span className="text-[9px] font-black uppercase text-slate-500">SuperRich</span>
+                            <span className="text-[9px] font-black uppercase text-slate-500">SuperRich 官網</span>
                         </button>
-                        <button onClick={() => window.open('https://rate.bot.com.tw', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-2 group">
+                        <button onClick={() => window.open('https://rate.bot.com.tw/xrt?Lang=zh-TW', '_blank')} className="flex-1 glass-morphic p-4 rounded-2xl border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-2 group">
                             <Landmark className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                            <span className="text-[9px] font-black uppercase text-slate-500">BOT Bank</span>
+                            <span className="text-[9px] font-black uppercase text-slate-500">台銀行牌告匯率</span>
                         </button>
                     </div>
                     <footer className="text-center opacity-30">
