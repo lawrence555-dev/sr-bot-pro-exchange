@@ -2,8 +2,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { exec } from 'child_process';
-import fs from 'fs';
+import cron from 'node-cron';
+import Rate from './models/Rate.js';
+import { scrapeAllRates } from './scripts/scraper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,29 +12,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
-
-// Trigger Zeabur Redeploy V2.1
-// Ensure data directory exists
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-}
-
 // MongoDB Connection
 if (process.env.MONGODB_URI) {
-    const maskedURI = process.env.MONGODB_URI.replace(/:([^:@]+)@/, ':****@');
-    console.log('================================================');
-    console.log(`[DEBUG] Attempting to connect to MongoDB with URI: ${maskedURI}`);
-    try {
-        const uriObj = new URL(process.env.MONGODB_URI);
-        console.log(`[DEBUG] Username: ${uriObj.username}`);
-        console.log(`[DEBUG] Password Length: ${uriObj.password.length}`);
-    } catch (e) {
-        console.log(`[DEBUG] Could not parse URI for debugging: ${e.message}`);
-    }
-    console.log('================================================');
-
     mongoose.connect(process.env.MONGODB_URI)
         .then(() => console.log('MongoDB Connected Successfully'))
         .catch(err => console.error('MongoDB Connection Failed:', err));
@@ -41,75 +21,133 @@ if (process.env.MONGODB_URI) {
     console.warn('MONGODB_URI not found in env, skipping DB connection');
 }
 
+// Helper: Save daily rate to DB (Upsert)
+async function saveDailyRate(data) {
+    if (!mongoose.connection.readyState) {
+        console.warn('DB not connected, skipping save.');
+        return;
+    }
+
+    try {
+        const recordTime = new Date();
+        const dateStr = recordTime.toLocaleDateString('zh-TW', {
+            timeZone: 'Asia/Taipei',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).replace(/\//g, '-'); // YYYY-MM-DD
+
+        const updatedRate = await Rate.findOneAndUpdate(
+            { dateStr: dateStr }, // Filter by today's date
+            {
+                $set: {
+                    botUsd: data.botUsd,
+                    srTwd: data.srTwd,
+                    srUsd: data.srUsd,
+                    recordTime: recordTime,
+                    dateStr: dateStr,
+                    createdAt: new Date() // Renew TTL
+                }
+            },
+            { upsert: true, new: true }
+        );
+
+        console.log(`[DB] Successfully saved/updated rate for ${dateStr}:`, updatedRate._id);
+        return updatedRate;
+    } catch (error) {
+        console.error('[DB] Save daily rate failed:', error.message);
+    }
+}
+
+// Scheduler: Run every day at 23:50 (Asia/Taipei)
+// Note: node-cron uses server time. Zeabur default is usually UTC.
+// 23:50 Taipei = 15:50 UTC. 
+// However, to be safe, we can specify timezone if the system supports it, 
+// or simpler: rely on `timezone` option in node-cron.
+cron.schedule('50 23 * * *', async () => {
+    console.log('[Cron] Starting daily scrape job...');
+    try {
+        const data = await scrapeAllRates();
+        await saveDailyRate(data);
+    } catch (error) {
+        console.error('[Cron] Job failed:', error.message);
+    }
+}, {
+    timezone: "Asia/Taipei"
+});
+
 // 0. Health Check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 1. API endpoint to trigger scraping
-app.get('/api/scrape', (req, res) => {
-    console.log('Production: Scrape request received');
-    console.log('CWD:', process.cwd());
-    const scriptPath = path.join(__dirname, 'scripts/scraper.js');
-    console.log('Script Path:', scriptPath);
+// 1. API endpoint to trigger scraping (Manual)
+app.get('/api/scrape', async (req, res) => {
+    console.log('Manual Scrape request received');
+    try {
+        const data = await scrapeAllRates();
+        await saveDailyRate(data);
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Manual scrape failed:', error.message);
+        res.status(500).json({ error: 'Scrape failed', details: error.message });
+    }
+});
 
-    exec(`node "${scriptPath}"`, { maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Scrape execution error: ${error.message}`);
-            console.error(`Stderr: ${stderr}`);
-            // Return detailed error to UI for debugging
-            return res.status(500).json({
-                error: 'Scrape failed',
-                details: error.message,
-                stderr: stderr
+// 2. Get latest rates (from DB)
+app.get('/api/rates', async (req, res) => {
+    try {
+        const latestRate = await Rate.findOne().sort({ recordTime: -1 });
+        if (latestRate) {
+            res.json({
+                botUsd: latestRate.botUsd,
+                srTwd: latestRate.srTwd,
+                srUsd: latestRate.srUsd,
+                lastUpdated: latestRate.recordTime.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
             });
+        } else {
+            res.status(404).json({ error: 'No rates found' });
         }
-        console.log('Scrape completed successfully');
-        console.log('Stdout:', stdout);
-        res.json({ success: true });
-    });
-});
-
-// 2. Dynamic serving of rates.json & history.json
-app.get('/api/rates', (req, res) => {
-    const ratesPath = path.join(__dirname, 'data/rates.json');
-    if (fs.existsSync(ratesPath)) {
-        res.sendFile(ratesPath);
-    } else {
-        res.status(404).json({ error: 'Rates not found' });
+    } catch (error) {
+        res.status(500).json({ error: 'DB Query Failed', details: error.message });
     }
 });
 
-app.get('/api/history', (req, res) => {
-    const historyPath = path.join(__dirname, 'data/history.json');
-    if (fs.existsSync(historyPath)) {
-        res.sendFile(historyPath);
-    } else {
-        res.status(404).json({ error: 'History not found' });
+// 3. Get history (from DB)
+app.get('/api/history', async (req, res) => {
+    try {
+        const history = await Rate.find().sort({ recordTime: -1 }).limit(30);
+        const formattedHistory = history.map(h => ({
+            time: h.recordTime.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+            botUsd: h.botUsd,
+            srTwd: h.srTwd,
+            srUsd: h.srUsd,
+            lastUpdated: h.recordTime.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
+        })).reverse(); // Reverse to chronological order (Old -> New) for charts
+
+        res.json(formattedHistory);
+    } catch (error) {
+        res.status(500).json({ error: 'DB Query Failed', details: error.message });
     }
 });
 
-// 3. Serve static files from the Vite build output
+// 4. Serve static files from the Vite build output
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// 4. Fallback to index.html for SPA routing (MUST BE LAST)
+// 5. Fallback to index.html for SPA routing (MUST BE LAST)
 app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
 
-    // Auto-scrape on startup to ensure fresh data
+    // Auto-scrape on startup (Optional: keep this if user wants immediate data on deploy)
     console.log('Startup: Triggering auto-scrape...');
-    const scriptPath = path.join(__dirname, 'scripts/scraper.js');
-    exec(`node "${scriptPath}"`, { maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Startup scrape failed: ${error.message}`);
-            console.error(`Stderr: ${stderr}`);
-        } else {
-            console.log('Startup scrape completed successfully');
-            console.log('Stdout:', stdout);
-        }
-    });
+    try {
+        const data = await scrapeAllRates();
+        await saveDailyRate(data);
+    } catch (error) {
+        console.error('Startup scrape warning:', error.message);
+    }
 });

@@ -1,27 +1,16 @@
-import axios from 'axios';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
-import mongoose from 'mongoose';
-import Rate from '../models/Rate.js';
+import axios from 'axios';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// 1. Bank of Taiwan (Cash Sell) - CSV source
+const TWBANK_URL = 'https://rate.bot.com.tw/xrt/flcsv/0/day';
 
-const OUTPUT_PATH = path.join(__dirname, '../data/rates.json');
-const HISTORY_PATH = path.join(__dirname, '../data/history.json');
-
-// 確保目錄存在
-const dir = path.dirname(OUTPUT_PATH);
-if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-}
+// 2. SuperRich Thailand (Green) - HTML source
+const SR_URL = 'https://www.superrichthailand.com/api/exchange/rate/latest';
 
 async function scrapeBOT() {
     console.log('Fetching BOT rates (CSV)...');
     try {
-        const response = await axios.get('https://rate.bot.com.tw/xrt/flcsv/0/day', {
+        const response = await axios.get(TWBANK_URL, {
             timeout: 10000,
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -127,14 +116,17 @@ async function scrapeSR(retries = 2) {
     }
 }
 
-async function run() {
+export async function scrapeAllRates() {
+    console.log('Starting scrape process...');
+
     try {
-        const [botUsd, srRates] = await Promise.all([
+        // Parallel execution
+        const [botRate, srRates] = await Promise.all([
             scrapeBOT(),
             scrapeSR()
         ]);
 
-        const timestamp = new Date().toLocaleString('zh-TW', {
+        const lastUpdated = new Date().toLocaleString('zh-TW', {
             timeZone: 'Asia/Taipei',
             hour12: false,
             year: 'numeric',
@@ -145,70 +137,17 @@ async function run() {
         });
 
         const result = {
-            botUsd,
+            botUsd: botRate,
             srTwd: srRates.twdRate,
             srUsd: srRates.usdRate,
-            lastUpdated: timestamp
+            lastUpdated
         };
 
-        // Save current rates
-        fs.writeFileSync(OUTPUT_PATH, JSON.stringify(result, null, 2));
-        console.log('Successfully saved rates to:', OUTPUT_PATH);
+        console.log('Scrape finished. Result:', result);
+        return result;
 
-        // Update history
-        let history = [];
-        if (fs.existsSync(HISTORY_PATH)) {
-            try {
-                history = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf-8'));
-            } catch (e) {
-                console.error('History parse failed, resetting...');
-            }
-        }
-
-        // Add new record
-        history.push({
-            time: timestamp,
-            ...result
-        });
-
-        // Keep last 50 records
-        if (history.length > 50) history = history.slice(-50);
-
-        fs.writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
-        console.log('Successfully updated history at:', HISTORY_PATH);
-
-        console.log(result);
-
-        // Save to MongoDB
-        if (process.env.MONGODB_URI) {
-            try {
-                console.log('Connecting to MongoDB...');
-                await mongoose.connect(process.env.MONGODB_URI);
-
-                const rateDoc = new Rate({
-                    botUsd: result.botUsd,
-                    srTwd: result.srTwd,
-                    srUsd: result.srUsd,
-                    recordTime: new Date(),
-                    dateStr: new Date().toISOString().split('T')[0] // YYYY-MM-DD
-                });
-
-                await rateDoc.save();
-                console.log('Successfully saved rates to MongoDB');
-            } catch (dbErr) {
-                console.error('MongoDB Save Error:', dbErr.message);
-            } finally {
-                if (mongoose.connection.readyState !== 0) {
-                    await mongoose.disconnect();
-                }
-            }
-        } else {
-            console.warn('MONGODB_URI not found, skipping DB save');
-        }
     } catch (error) {
         console.error('Scraping process failed:', error.message);
-        process.exit(1);
+        throw error;
     }
 }
-
-run();
