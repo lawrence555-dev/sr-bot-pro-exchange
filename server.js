@@ -17,6 +17,15 @@ if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
 
+// MongoDB Connection
+if (process.env.MONGODB_URI) {
+    mongoose.connect(process.env.MONGODB_URI)
+        .then(() => console.log('MongoDB Connected Successfully'))
+        .catch(err => console.error('MongoDB Connection Failed:', err));
+} else {
+    console.warn('MONGODB_URI not found in env, skipping DB connection');
+}
+
 // 0. Health Check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
