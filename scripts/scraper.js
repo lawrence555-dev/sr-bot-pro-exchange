@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
+import mongoose from 'mongoose';
+import Rate from '../models/Rate.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -176,6 +178,33 @@ async function run() {
         console.log('Successfully updated history at:', HISTORY_PATH);
 
         console.log(result);
+
+        // Save to MongoDB
+        if (process.env.MONGODB_URI) {
+            try {
+                console.log('Connecting to MongoDB...');
+                await mongoose.connect(process.env.MONGODB_URI);
+
+                const rateDoc = new Rate({
+                    botUsd: result.botUsd,
+                    srTwd: result.srTwd,
+                    srUsd: result.srUsd,
+                    recordTime: new Date(),
+                    dateStr: new Date().toISOString().split('T')[0] // YYYY-MM-DD
+                });
+
+                await rateDoc.save();
+                console.log('Successfully saved rates to MongoDB');
+            } catch (dbErr) {
+                console.error('MongoDB Save Error:', dbErr.message);
+            } finally {
+                if (mongoose.connection.readyState !== 0) {
+                    await mongoose.disconnect();
+                }
+            }
+        } else {
+            console.warn('MONGODB_URI not found, skipping DB save');
+        }
     } catch (error) {
         console.error('Scraping process failed:', error.message);
         process.exit(1);
