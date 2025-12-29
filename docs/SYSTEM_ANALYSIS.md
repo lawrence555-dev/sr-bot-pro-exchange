@@ -40,8 +40,8 @@ graph TD
     HistoryAPI -->|"Read"| HistoryFile
     
     StaticFE -->|"Render"| Carousel["Swipeable Carousel (App.jsx)"]
-    Carousel -->|"Page 1"| StrategyCard["AI Strategy Card"]
-    Carousel -->|"Page 2"| Recharts["Interactive Chart (Recharts)"]
+    Carousel -->|"Page 1 (Rates)"| StrategyCard["AI Strategy Card (Incl. TWD Input)"]
+    Carousel -->|"Page 2 (Chart)"| Recharts["Interactive Chart (Recharts)"]
     Recharts -.->|"Fetch Data"| HistoryAPI
 ```
 
@@ -97,9 +97,10 @@ sequenceDiagram
     - **每日去重 (Deduplication)**：使用 `dateStr` (YYYY-MM-DD) 作為唯一鍵值，確保同一天多次執行也只會更新同一筆記錄，防止數據膨脹。
     - **自動滾動 (Rolling Retention)**：每次寫入時自動檢查長度，僅保留最近 30 天數據。
 
-### C. 趨勢視覺化 (Client-side Rendering)
-- **目的**：提供高度互動的匯率對比，幫助使用者精準判斷換匯時機。
+### C. 趨勢視覺化與沉浸式 UI (v2.3)
+- **目的**：提供高度互動的匯率對比，並透過 UI 分層減少視覺干擾。
 - **實現**：
+    - **組件整合**：將 `TWD Input` 整合進 `Card A (Rates)`。使用者進行試算時僅在第一頁操作，滑動至第二頁時輸入框會隨之移出視野，讓圖表擁有最大顯示空間。
     - **技術棧**：使用 `Recharts` 函式庫於前端進行向量繪圖。
     - **互動性**：支援手指觸控滑動顯示垂直參考線與懸浮數值 (Tooltip)。
     - **即時計算**：前端直接處理 `srUsd / botUsd` 的交叉匯率邏輯，減輕伺服器運算負擔。
