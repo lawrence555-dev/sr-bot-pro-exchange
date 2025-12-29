@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
 import fs from 'fs';
+import compression from 'compression';
 import { scrapeAllRates } from './scripts/scraper.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -10,6 +11,9 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Enable Gzip compression for faster mobile loading
+app.use(compression());
 
 // Ensure data directory exists
 const DATA_DIR = path.join(__dirname, 'data');

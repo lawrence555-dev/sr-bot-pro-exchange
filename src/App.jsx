@@ -286,10 +286,6 @@ function App() {
                     -webkit-backdrop-filter: blur(20px);
                     border: 1px solid rgba(255, 255, 255, 0.07);
                 }
-                @font-face {
-                    font-family: 'Outfit';
-                    src: url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;400;700;900&display=swap');
-                }
             `}</style>
         </div>
     );
