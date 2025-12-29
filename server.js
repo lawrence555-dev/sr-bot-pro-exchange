@@ -300,11 +300,19 @@ app.get('/api/trend-chart', async (req, res) => {
 });
 
 // 6. Serve static files from the Vite build output (Incremented index)
-app.use(express.static(path.join(__dirname, 'dist')));
+// Serve Static files with Aggressive Caching
+app.use(express.static(path.join(__dirname, 'dist'), {
+    maxAge: '1d',
+    setHeaders: (res, path) => {
+        if (path.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'public, max-age=0');
+        }
+    }
+}));
 
-// 7. Fallback to index.html for SPA routing (MUST BE LAST)
-app.use((req, res) => {
-    res.sendFile(path.join(__dirname, 'dist/index.html'));
+// Route everything else to index.html (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, async () => {

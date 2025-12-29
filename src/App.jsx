@@ -230,7 +230,7 @@ function App() {
                                         </p>
                                     </div>
                                     <p className="mt-auto pt-4 text-[10px] text-slate-500 text-center font-bold tracking-widest animate-pulse">
-                                        ← 向左滑動 檢視 30 天趨勢 →
+                                        向左滑動 檢視 30 天趨勢 →
                                     </p>
                                 </div>
                             </div>
@@ -282,9 +282,10 @@ function App() {
             <style>{`
                 .glass-morphic {
                     background: rgba(255, 255, 255, 0.03);
-                    backdrop-filter: blur(20px);
-                    -webkit-backdrop-filter: blur(20px);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
                     border: 1px solid rgba(255, 255, 255, 0.07);
+                    will-change: transform, opacity;
                 }
             `}</style>
         </div>
