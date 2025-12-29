@@ -6,29 +6,29 @@
 
 ```mermaid
 graph TD
-    User((User / iPhone)) -->|HTTPS| LoadBalancer[Zeabur Edge Network]
+    User(("User / iPhone")) -->|HTTPS| LoadBalancer["Zeabur Edge Network"]
     
     subgraph "SR-BOT Pro Container"
         LoadBalancer -->|Port 8080| Express[Express Server]
         
-        Express -->|GET /| StaticFE[Static Frontend (Vite Build)]
-        Express -->|GET /api/rates| RatesAPI[Rates API]
-        Express -->|GET /api/chart| ChartAPI[Trend Chart API]
+        Express -->|GET /| StaticFE["Static Frontend (Vite Build)"]
+        Express -->|GET /api/rates| RatesAPI["Rates API"]
+        Express -->|GET /api/chart| ChartAPI["Trend Chart API"]
         
-        Scheduler[node-cron Scheduler] -->|Trigger 23:50| ScraperService
+        Scheduler["node-cron Scheduler"] -->|Trigger 23:50| ScraperService
         
         subgraph "Core Logic"
-            ScraperService[Scraper Service] 
+            ScraperService["Scraper Service"] 
             RatesAPI
             ChartAPI
         end
         
-        ScraperService -->|Fetch| BOT[Bank of Taiwan (CSV)]
-        ScraperService -->|Fetch| SR[SuperRich Thailand (HTML)]
+        ScraperService -->|Fetch| BOT["Bank of Taiwan (CSV)"]
+        ScraperService -->|Fetch| SR["SuperRich Thailand (HTML)"]
     end
     
     subgraph "Persistent Storage"
-        Volume[Zeabur Volume (/app/data)]
+        Volume["Zeabur Volume (/app/data)"]
         HistoryFile[history.json]
     end
     
