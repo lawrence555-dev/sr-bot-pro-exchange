@@ -1,4 +1,4 @@
-# SR-BOT Pro Exchange v2.1 - 系統分析文件
+# SR-BOT Pro Exchange - 系統分析文件
 
 ## 1. 系統架構圖 (System Architecture)
 
@@ -97,7 +97,7 @@ sequenceDiagram
     - **每日去重 (Deduplication)**：使用 `dateStr` (YYYY-MM-DD) 作為唯一鍵值，確保同一天多次執行也只會更新同一筆記錄，防止數據膨脹。
     - **自動滾動 (Rolling Retention)**：每次寫入時自動檢查長度，僅保留最近 30 天數據。
 
-### C. 趨勢視覺化與沉浸式 UI (v2.3)
+### C. 趨勢視覺化與沉浸式 UI
 - **目的**：提供高度互動的匯率對比，並透過 UI 分層減少視覺干擾。
 - **實現**：
     - **組件整合**：將 `TWD Input` 整合進 `Card A (Rates)`。使用者進行試算時僅在第一頁操作，滑動至第二頁時輸入框會隨之移出視野，讓圖表擁有最大顯示空間。
