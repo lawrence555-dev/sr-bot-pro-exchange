@@ -73,11 +73,22 @@ const InteractiveChart = ({ data }) => {
                         interval="preserveStartEnd"
                     />
                     <YAxis
-                        domain={['auto', 'auto']}
+                        domain={([dataMin, dataMax]) => {
+                            const min = Math.min(dataMin, 0.95);
+                            const max = Math.max(dataMax, 1.05);
+                            return [parseFloat(min.toFixed(2)), parseFloat(max.toFixed(2))];
+                        }}
                         tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace' }}
                         tickLine={false}
                         axisLine={false}
                         width={40}
+                        ticks={[0.9, 0.95, 1.0, 1.05, 1.1]}
+                    />
+                    <ReferenceLine
+                        y={1.0}
+                        stroke="rgba(255,255,255,0.15)"
+                        strokeDasharray="3 3"
+                        label={{ value: '1.0', position: 'right', fill: '#64748b', fontSize: 10 }}
                     />
                     <Tooltip
                         content={<CustomTooltip />}
@@ -87,7 +98,7 @@ const InteractiveChart = ({ data }) => {
                     <Line
                         type="monotone"
                         dataKey="direct"
-                        name="Direct (TWD)"
+                        name="台幣直換"
                         stroke="#10B981" // emerald-500
                         strokeWidth={2}
                         dot={false}
@@ -97,7 +108,7 @@ const InteractiveChart = ({ data }) => {
                     <Line
                         type="monotone" // or step
                         dataKey="cross"
-                        name="Cross (USD)"
+                        name="美金中轉"
                         stroke="#3B82F6" // blue-500
                         strokeWidth={2}
                         strokeDasharray="4 4"
