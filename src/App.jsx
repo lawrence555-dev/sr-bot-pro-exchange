@@ -229,7 +229,6 @@ function App() {
             {/* Scrollable Content (Trends + Links) */}
             <div className="p-6 pt-0 space-y-6">
                 <div className="grid grid-cols-1 gap-4">
-                    {/* Trend Chart Image from Server */}
                     {/* Interactive Trend Chart */}
                     <div className="w-full bg-white/5 rounded-2xl border border-white/10 p-4 pb-0 overflow-hidden relative min-h-[240px]">
                         {history.length > 0 ? (
