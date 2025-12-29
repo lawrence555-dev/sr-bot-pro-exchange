@@ -243,7 +243,7 @@ function App() {
                 </div>
 
                 <footer className="mt-12 text-center pb-8 opacity-40">
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity 頂級匯率分析系統 • v2.0</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity 頂級匯率分析系統 • v2.1 (Debug Connection)</p>
                 </footer>
             </div>
 

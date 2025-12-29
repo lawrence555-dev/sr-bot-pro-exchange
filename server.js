@@ -21,7 +21,9 @@ if (!fs.existsSync(dataDir)) {
 // MongoDB Connection
 if (process.env.MONGODB_URI) {
     const maskedURI = process.env.MONGODB_URI.replace(/:([^:@]+)@/, ':****@');
-    console.log(`Attempting to connect to MongoDB with URI: ${maskedURI}`);
+    console.log('================================================');
+    console.log(`[DEBUG] Attempting to connect to MongoDB with URI: ${maskedURI}`);
+    console.log('================================================');
 
     mongoose.connect(process.env.MONGODB_URI)
         .then(() => console.log('MongoDB Connected Successfully'))
