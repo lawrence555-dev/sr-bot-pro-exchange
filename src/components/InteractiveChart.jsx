@@ -54,8 +54,8 @@ const InteractiveChart = ({ data }) => {
     }).reverse(); // Ensure chronological order (oldest to newest)
 
     return (
-        <div className="w-full h-full select-none flex flex-col">
-            <ResponsiveContainer width="100%" height="100%">
+        <div className="w-full h-full select-none flex flex-col outline-none touch-none">
+            <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
                 <LineChart
                     data={chartData}
                     margin={{ top: 5, right: 5, left: -25, bottom: 5 }}

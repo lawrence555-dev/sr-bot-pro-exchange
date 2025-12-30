@@ -302,6 +302,12 @@ function App() {
                     border: 1px solid rgba(255, 255, 255, 0.07);
                     will-change: transform, opacity;
                 }
+                * {
+                    -webkit-tap-highlight-color: transparent;
+                }
+                svg, .recharts-surface {
+                    outline: none !important;
+                }
             `}</style>
         </div>
     );
