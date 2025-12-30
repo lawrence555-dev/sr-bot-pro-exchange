@@ -134,16 +134,16 @@ function App() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full"></div>
             </div>
 
-            <div className="h-full flex flex-col p-4 pb-2 relative z-10">
-                {/* Header */}
-                <header className="flex justify-between items-center mb-3 pt-2">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.3)] border border-white/5">
-                            <Wallet className="text-white w-5 h-5" />
+            <div className="h-full flex flex-col p-3.5 pb-2 relative z-10">
+                {/* Header Section Compact */}
+                <header className="flex justify-between items-center mb-2.5 pt-1">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)] border border-white/5">
+                            <Wallet className="text-white w-4.5 h-4.5" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 leading-tight">SR-BOT PRO</h1>
-                            <p className="text-[8px] text-emerald-500/70 font-bold uppercase tracking-[0.1em]">
+                            <h1 className="text-lg font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 leading-none">SR-BOT PRO</h1>
+                            <p className="text-[7.5px] text-emerald-500/70 font-bold uppercase tracking-[0.1em] mt-0.5">
                                 {viewMode === 'rates' ? `即時換匯分析 (${lastUpdated})` : '30 天歷史趨勢監測'}
                             </p>
                         </div>
@@ -160,11 +160,11 @@ function App() {
                     </button>
                 </header>
 
-                <div className="flex-grow flex flex-col gap-1.5 overflow-hidden">
+                <div className="flex-grow flex flex-col gap-1 overflow-hidden">
                     {/* Pagination Indicator moved above Carousel */}
                     <div className="flex justify-center gap-1.5 mb-0.5">
-                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-6 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-1 bg-white/20'}`}></div>
-                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-6 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'w-1 bg-white/20'}`}></div>
+                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'rates' ? 'w-5 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'w-1 bg-white/20'}`}></div>
+                        <div className={`h-1 rounded-full transition-all duration-500 ${viewMode === 'chart' ? 'w-5 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'w-1 bg-white/20'}`}></div>
                     </div>
 
                     {/* Responsive Carousel Area - Using flex-grow to fill available space */}
@@ -251,7 +251,7 @@ function App() {
                                         <TrendingUp className="w-4 h-4 text-blue-400" />
                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">30 天歷史匯率動態分析</span>
                                     </div>
-                                    <div className="flex-grow flex items-center justify-center min-h-0">
+                                    <div className="flex-grow flex flex-col min-h-0 pt-2 pb-1">
                                         {history.length > 0 ? (
                                             <InteractiveChart data={history} />
                                         ) : (
@@ -271,25 +271,25 @@ function App() {
                 </div>
 
                 {/* Bottom Info / Links - Optimized for compact view */}
-                <div className="mt-3 space-y-2 pb-2">
+                <div className="mt-2 space-y-1.5 pb-1">
                     <div className="grid grid-cols-2 gap-2">
                         <button
                             onClick={() => window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank')}
-                            className="glass-morphic p-3 rounded-xl border-white/5 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                            className="glass-morphic p-2.5 rounded-lg border-white/5 flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform"
                         >
-                            <Globe className="w-4 h-4 text-emerald-400" />
-                            <span className="text-[8px] font-black uppercase tracking-tighter text-slate-400">SuperRich 官網</span>
+                            <Globe className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-[7.5px] font-black uppercase tracking-tighter text-slate-400">SuperRich 官網</span>
                         </button>
                         <button
                             onClick={() => window.open('https://rate.bot.com.tw/xrt?Lang=zh-TW', '_blank')}
-                            className="glass-morphic p-3 rounded-xl border-white/5 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                            className="glass-morphic p-2.5 rounded-lg border-white/5 flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform"
                         >
-                            <Library className="w-4 h-4 text-blue-400" />
-                            <span className="text-[8px] font-black uppercase tracking-tighter text-slate-400">台銀行牌告匯率</span>
+                            <Library className="w-3.5 h-3.5 text-blue-400" />
+                            <span className="text-[7.5px] font-black uppercase tracking-tighter text-slate-400">台銀行牌告匯率</span>
                         </button>
                     </div>
-                    <footer className="text-center opacity-30 mt-1">
-                        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Pro • {lastUpdated}</p>
+                    <footer className="text-center opacity-30 mt-0.5">
+                        <p className="text-[7px] font-black uppercase tracking-[0.4em] text-slate-500">Antigravity Pro • {lastUpdated}</p>
                     </footer>
                 </div>
             </div>

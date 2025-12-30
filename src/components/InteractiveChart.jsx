@@ -54,11 +54,11 @@ const InteractiveChart = ({ data }) => {
     }).reverse(); // Ensure chronological order (oldest to newest)
 
     return (
-        <div className="w-full h-[240px] select-none">
+        <div className="w-full h-full select-none flex flex-col">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     data={chartData}
-                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    margin={{ top: 5, right: 5, left: -25, bottom: 5 }}
                 >
                     <CartesianGrid
                         vertical={false}
@@ -81,7 +81,7 @@ const InteractiveChart = ({ data }) => {
                         tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace' }}
                         tickLine={false}
                         axisLine={false}
-                        width={40}
+                        width={35}
                         ticks={[0.9, 0.95, 1.0, 1.05, 1.1]}
                     />
                     <ReferenceLine
