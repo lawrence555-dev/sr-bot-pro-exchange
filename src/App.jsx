@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Landmark, Library, RefreshCw, Loader2, Info, Globe, TrendingUp, DollarSign, Wallet } from 'lucide-react';
 import InteractiveChart from './components/InteractiveChart';
 
@@ -98,13 +98,25 @@ function App() {
         if (direction === 'right' && viewMode === 'chart') setViewMode('rates');
     };
 
-    // Simple swipe detection logic
-    let touchStart = 0;
-    const onTouchStart = (e) => (touchStart = e.targetTouches[0].clientX);
+    // Precise touch detection using useRef to prevent chart interaction conflicts
+    const touchStartX = useRef(0);
+    const isChartTouch = useRef(false);
+
+    const onTouchStart = (e) => {
+        touchStartX.current = e.targetTouches[0].clientX;
+        // Check if the touch originated inside the chart container or a Recharts element
+        isChartTouch.current = !!e.target.closest('.recharts-wrapper') || !!e.target.closest('.interactive-chart-container');
+    };
+
     const onTouchEnd = (e) => {
-        const touchEnd = e.changedTouches[0].clientX;
-        if (touchStart - touchEnd > 50) handleSwipe('left');
-        if (touchStart - touchEnd < -50) handleSwipe('right');
+        // If the interaction was on the chart, ignore swipe for carousel navigation
+        if (isChartTouch.current) return;
+
+        const touchEndX = e.changedTouches[0].clientX;
+        const delta = touchStartX.current - touchEndX;
+
+        if (delta > 50) handleSwipe('left');
+        if (delta < -50) handleSwipe('right');
     };
 
     useEffect(() => {
